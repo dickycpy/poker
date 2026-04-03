@@ -63,9 +63,9 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-zinc-900 border border-zinc-800 p-3 rounded-xl shadow-2xl">
+        <div className="glass-card p-3 rounded-xl shadow-2xl">
           <p className="font-bold text-zinc-100">{data.name}</p>
-          <p className={cn("font-mono font-bold", data.PnL >= 0 ? "text-green-500" : "text-red-500")}>
+          <p className={cn("font-mono font-bold", data.PnL >= 0 ? "text-green-400" : "text-red-400")}>
             {data.PnL > 0 ? `+${data.PnL}` : data.PnL}
           </p>
         </div>
@@ -75,15 +75,15 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
   };
 
   return (
-    <div className="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 flex flex-col h-full overflow-hidden">
+    <div className="glass-card p-6 rounded-3xl flex flex-col h-full overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <TrendingUp size={20} className="text-orange-500" /> 戰力分佈圖
+          <TrendingUp size={20} className="text-orange-400" /> 戰力分佈圖
         </h2>
         {data.length > 15 && (
           <button 
             onClick={onViewAll}
-            className="text-xs font-bold text-orange-500 flex items-center gap-1 hover:bg-orange-500/10 px-3 py-1.5 rounded-full transition-colors"
+            className="text-xs font-bold text-orange-400 flex items-center gap-1 hover:bg-orange-400/10 px-3 py-1.5 rounded-full transition-colors"
           >
             查看全部 <Maximize2 size={14} />
           </button>
@@ -188,7 +188,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
                   {processedData.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={entry.PnL >= 0 ? '#22c55e' : '#ef4444'} 
+                      fill={entry.PnL >= 0 ? '#4ade80' : '#f87171'} 
                       className="cursor-pointer hover:opacity-80 transition-opacity"
                     />
                   ))}
@@ -223,8 +223,8 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
             exit={{ opacity: 0, y: 100 }}
             className="fixed inset-x-0 bottom-0 z-[100] p-4 md:hidden"
           >
-            <div className="bg-zinc-900 border border-zinc-800 rounded-t-3xl p-6 shadow-2xl">
-              <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-6" />
+            <div className="glass-card rounded-t-3xl p-6 shadow-2xl">
+              <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6" />
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-2xl font-bold">{showTooltip.name}</h3>
                 <button onClick={() => setShowTooltip(null)} className="text-zinc-500"><X size={24} /></button>
@@ -232,7 +232,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
               <div className="flex items-center gap-4">
                 <div className={cn(
                   "px-4 py-2 rounded-2xl font-mono text-xl font-bold",
-                  showTooltip.value >= 0 ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                  showTooltip.value >= 0 ? "bg-green-400/10 text-green-400" : "bg-red-400/10 text-red-400"
                 )}>
                   {showTooltip.value > 0 ? `+${showTooltip.value}` : showTooltip.value}
                 </div>
