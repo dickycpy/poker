@@ -168,6 +168,7 @@ export default function App() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [recordSortBy, setRecordSortBy] = useState<'date' | 'name'>('date');
   const [recordSortOrder, setRecordSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [filterPlayerId, setFilterPlayerId] = useState<string>('all');
 
   useEffect(() => {
     // Test Firestore Connection
@@ -317,7 +318,12 @@ export default function App() {
   }, [stats]);
 
   const sortedRecords = useMemo(() => {
-    return [...records].sort((a, b) => {
+    let filtered = [...records];
+    if (filterPlayerId !== 'all') {
+      filtered = filtered.filter(r => r.playerId === filterPlayerId);
+    }
+
+    return filtered.sort((a, b) => {
       if (recordSortBy === 'date') {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
@@ -330,7 +336,7 @@ export default function App() {
           : playerA.localeCompare(playerB);
       }
     });
-  }, [records, players, recordSortBy, recordSortOrder]);
+  }, [records, players, recordSortBy, recordSortOrder, filterPlayerId]);
 
   return (
     <ErrorBoundary>
@@ -517,47 +523,66 @@ export default function App() {
                       transition={{ delay: 0.5 }}
                       className="glass-card p-6 rounded-3xl"
                     >
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-bold flex items-center gap-2">
-                          <History size={20} className="text-orange-400" /> 最近戰報
-                        </h2>
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => {
-                              if (recordSortBy === 'date') {
-                                setRecordSortOrder(recordSortOrder === 'asc' ? 'desc' : 'asc');
-                              } else {
-                                setRecordSortBy('date');
-                                setRecordSortOrder('desc');
-                              }
-                            }}
-                            className={cn(
-                              "text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1",
-                              recordSortBy === 'date' 
-                                ? "bg-orange-500/20 border-orange-500/50 text-orange-400" 
-                                : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
-                            )}
+                      <div className="flex flex-col gap-4 mb-6">
+                        <div className="flex justify-between items-center">
+                          <h2 className="text-xl font-bold flex items-center gap-2">
+                            <History size={20} className="text-orange-400" /> 最近戰報
+                          </h2>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => {
+                                if (recordSortBy === 'date') {
+                                  setRecordSortOrder(recordSortOrder === 'asc' ? 'desc' : 'asc');
+                                } else {
+                                  setRecordSortBy('date');
+                                  setRecordSortOrder('desc');
+                                }
+                              }}
+                              className={cn(
+                                "text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1",
+                                recordSortBy === 'date' 
+                                  ? "bg-orange-500/20 border-orange-500/50 text-orange-400" 
+                                  : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
+                              )}
+                            >
+                              日期 {recordSortBy === 'date' && (recordSortOrder === 'desc' ? '↓' : '↑')}
+                            </button>
+                            <button 
+                              onClick={() => {
+                                if (recordSortBy === 'name') {
+                                  setRecordSortOrder(recordSortOrder === 'asc' ? 'desc' : 'asc');
+                                } else {
+                                  setRecordSortBy('name');
+                                  setRecordSortOrder('desc');
+                                }
+                              }}
+                              className={cn(
+                                "text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1",
+                                recordSortBy === 'name' 
+                                  ? "bg-orange-500/20 border-orange-500/50 text-orange-400" 
+                                  : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
+                              )}
+                            >
+                              人名 {recordSortBy === 'name' && (recordSortOrder === 'desc' ? '↓' : '↑')}
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Player Filter Dropdown */}
+                        <div className="relative">
+                          <select 
+                            value={filterPlayerId}
+                            onChange={(e) => setFilterPlayerId(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm font-bold text-zinc-300 focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
                           >
-                            日期 {recordSortBy === 'date' && (recordSortOrder === 'desc' ? '↓' : '↑')}
-                          </button>
-                          <button 
-                            onClick={() => {
-                              if (recordSortBy === 'name') {
-                                setRecordSortOrder(recordSortOrder === 'asc' ? 'desc' : 'asc');
-                              } else {
-                                setRecordSortBy('name');
-                                setRecordSortOrder('desc');
-                              }
-                            }}
-                            className={cn(
-                              "text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1",
-                              recordSortBy === 'name' 
-                                ? "bg-orange-500/20 border-orange-500/50 text-orange-400" 
-                                : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
-                            )}
-                          >
-                            人名 {recordSortBy === 'name' && (recordSortOrder === 'desc' ? '↓' : '↑')}
-                          </button>
+                            <option value="all">所有損友 (All Players)</option>
+                            {players.map(p => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <Users size={14} />
+                          </div>
                         </div>
                       </div>
                       <div className="space-y-3">
