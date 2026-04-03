@@ -596,7 +596,7 @@ export default function App() {
                           <select 
                             value={filterPlayerId}
                             onChange={(e) => setFilterPlayerId(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm font-bold text-zinc-300 focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-base font-bold text-zinc-300 focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
                           >
                             <option value="all">所有損友 (All Players)</option>
                             {players.map(p => (
@@ -699,7 +699,7 @@ export default function App() {
                         <select 
                           value={selectedPlayerId}
                           onChange={(e) => setSelectedPlayerId(e.target.value)}
-                          className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors appearance-none"
+                          className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors appearance-none text-base"
                         >
                           <option value="">揀返個名先...</option>
                           {players.map(p => (
@@ -717,7 +717,7 @@ export default function App() {
                             placeholder="例如: 500 或 -200"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className="w-full glass-input rounded-xl p-4 pl-12 focus:outline-none focus:border-orange-500 transition-colors"
+                            className="w-full glass-input rounded-xl p-4 pl-12 focus:outline-none focus:border-orange-500 transition-colors text-base"
                           />
                         </div>
                       </div>
@@ -750,7 +750,7 @@ export default function App() {
                           placeholder="入個名嚟..."
                           value={newPlayerName}
                           onChange={(e) => setNewPlayerName(e.target.value)}
-                          className="flex-1 glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors"
+                          className="flex-1 glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors text-base"
                         />
                         <button 
                           type="submit"
@@ -776,7 +776,7 @@ export default function App() {
                                 type="text"
                                 value={editingPlayerName}
                                 onChange={(e) => setEditingPlayerName(e.target.value)}
-                                className="flex-1 glass-input rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-orange-500"
+                                className="flex-1 glass-input rounded-lg px-2 py-1 text-base focus:outline-none focus:border-orange-500"
                                 autoFocus
                               />
                               <button 
