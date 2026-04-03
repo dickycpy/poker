@@ -384,9 +384,6 @@ export default function App() {
                 </button>
               </motion.div>
             </div>
-
-            {/* Decorative Elements */}
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-orange-500/20 to-transparent" />
           </motion.div>
         ) : (
           <motion.div 
