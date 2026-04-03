@@ -60,6 +60,7 @@ import {
   ArrowRight,
   AlertCircle,
   CheckCircle2,
+  Dices,
   Copy,
   Sun,
   Moon,
@@ -549,6 +550,66 @@ export default function App() {
                     exit={{ opacity: 0, y: -10 }}
                     className="space-y-6"
                   >
+                    {/* House Rules Section */}
+                    <motion.div 
+                      initial={{ scale: 0.95, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.05 }}
+                      className="glass-card p-6 rounded-3xl border-orange-500/20"
+                    >
+                      <div className="flex items-center gap-2 text-orange-500 mb-6">
+                        <Dices size={24} />
+                        <h2 className="text-xl font-bold italic">開局派牌規則 (House Rules) 🃏</h2>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                          <p className="text-sm font-bold text-muted uppercase tracking-widest">每位玩家派發：</p>
+                          <div className="space-y-2 font-mono text-sm">
+                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
+                              <span className="text-primary">1 × $1000</span>
+                              <span className="text-orange-500 font-bold">$1000</span>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
+                              <span className="text-primary">1 × $500</span>
+                              <span className="text-orange-500 font-bold">$500</span>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
+                              <span className="text-primary">10 × $100</span>
+                              <span className="text-orange-500 font-bold">$1000</span>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
+                              <span className="text-primary">4 × $50</span>
+                              <span className="text-orange-500 font-bold">$200</span>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
+                              <span className="text-primary">10 × $20</span>
+                              <span className="text-orange-500 font-bold">$200</span>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
+                              <span className="text-primary">8 × $10</span>
+                              <span className="text-orange-500 font-bold">$80</span>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
+                              <span className="text-primary">4 × $5</span>
+                              <span className="text-orange-500 font-bold">$20</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col justify-center items-center p-6 bg-orange-500/5 rounded-3xl border border-orange-500/20 text-center">
+                          <div className="text-4xl font-black text-orange-500 mb-2">$3,000</div>
+                          <p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">總分 (Total Points)</p>
+                          
+                          <div className="w-full h-px bg-orange-500/20 mb-4" />
+                          
+                          <div className="text-2xl font-black text-primary mb-1">38 塊</div>
+                          <p className="text-xs text-muted italic">籌碼總數 (Total Chips)</p>
+                          <p className="text-[10px] text-orange-500/60 mt-2 font-bold uppercase tracking-tighter">Very Playable! 🚀</p>
+                        </div>
+                      </div>
+                    </motion.div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <motion.div 
                         initial={{ scale: 0.95, opacity: 0 }}
