@@ -53,7 +53,8 @@ import {
   Coins,
   Edit2,
   Check,
-  X
+  X,
+  Calendar
 } from 'lucide-react';
 
 const INITIAL_PLAYER_NAMES = ['掌門', '蕃茄', 'Dicky', 'Hauyi', 'Hugo', 'Ken', 'Kiki', 'Leo Law', 'Matthew'];
@@ -333,18 +334,22 @@ export default function App() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="relative"
+              className="relative flex flex-col items-center"
             >
-              <div className="w-24 h-24 bg-orange-500 rounded-3xl rotate-12 flex items-center justify-center mb-8 mx-auto shadow-2xl shadow-orange-500/20">
-                <Trophy size={48} className="text-white -rotate-12" />
+              <div className="w-48 h-48 md:w-64 md:h-64 rounded-3xl overflow-hidden mb-8 shadow-2xl border-4 border-orange-500/30 rotate-3 hover:rotate-0 transition-transform duration-500">
+                <img 
+                  src="https://images.weserv.nl/?url=https://ais-pre-jsg275qnhubzpsj732jkyy-794420763709.asia-southeast1.run.app/attachment/0f462589-9815-4670-8b9a-4c278076625d" 
+                  alt="App Icon" 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
               </div>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-4 italic leading-tight">
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-2 italic leading-tight">
                 味真香<br />
                 <span className="text-orange-500">慈善啤王大賽</span>
               </h1>
-              <p className="text-zinc-500 text-lg mb-12 max-w-xs mx-auto">
-                今日邊個係水魚？<br />
-                即時戰報，一目了然。
+              <p className="text-orange-400 font-bold text-xl mb-12 italic tracking-widest">
+                小賭怡情 大賭變李嘉誠
               </p>
             </motion.div>
 
@@ -355,15 +360,9 @@ export default function App() {
               className="mt-auto mb-12"
             >
               <button className="group flex flex-col items-center gap-4">
-                <div className="w-16 h-16 rounded-full glass-card flex items-center justify-center group-hover:border-orange-500 transition-colors shadow-2xl">
-                  <motion.div
-                    animate={{ y: [0, 5, 0] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                  >
-                    <Plus size={32} className="text-zinc-500 group-hover:text-orange-400" />
-                  </motion.div>
+                <div className="px-8 py-4 rounded-full glass-card flex items-center justify-center group-hover:border-orange-500 transition-all shadow-2xl active:scale-95">
+                  <span className="text-lg font-black tracking-[0.3em] text-white uppercase">點擊開始</span>
                 </div>
-                <span className="text-sm font-bold tracking-widest text-zinc-400 group-hover:text-white uppercase transition-colors">點擊開始</span>
               </button>
             </motion.div>
 
@@ -389,17 +388,7 @@ export default function App() {
                 animate={{ x: 0, opacity: 1 }}
               >
                 <h1 className="text-2xl font-black tracking-tighter text-orange-500 italic">味真香慈善啤王大賽</h1>
-                <p className="text-xs text-zinc-500">今日邊個係水魚？</p>
-              </motion.div>
-              <motion.div
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                className="flex items-center gap-2"
-              >
-                <div className="bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-800 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Live</span>
-                </div>
+                <p className="text-xs text-zinc-500 italic">小賭怡情 大賭變李嘉誠</p>
               </motion.div>
             </header>
 
@@ -589,12 +578,18 @@ export default function App() {
                     <form onSubmit={handleAddRecord} className="space-y-6">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-zinc-400">日期</label>
-                        <input 
-                          type="date" 
-                          value={date}
-                          onChange={(e) => setDate(e.target.value)}
-                          className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors box-border min-w-0"
-                        />
+                        <div className="relative">
+                          <input 
+                            type="date" 
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors box-border appearance-none text-white text-base"
+                            style={{ WebkitAppearance: 'none' }}
+                          />
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <Calendar size={20} />
+                          </div>
+                        </div>
                       </div>
 
                       <div className="space-y-2">
