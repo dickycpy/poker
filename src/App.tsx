@@ -60,7 +60,10 @@ import {
   ArrowRight,
   AlertCircle,
   CheckCircle2,
-  Copy
+  Copy,
+  Sun,
+  Moon,
+  Monitor
 } from 'lucide-react';
 
 const INITIAL_PLAYER_NAMES = ['掌門', '蕃茄', 'Dicky', 'Hauyi', 'Hugo', 'Ken', 'Kiki', 'Leo Law', 'Matthew'];
@@ -79,7 +82,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-zinc-950 text-white p-10 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <div className="min-h-screen bg-[var(--bg-color)] text-inherit p-10 flex flex-col items-center justify-center text-center relative overflow-hidden">
           {/* Liquid Glass Background Elements */}
           <div className="glass-blob blob-1" />
           <div className="glass-blob blob-2" />
@@ -87,7 +90,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
           
           <div className="glass-card p-10 rounded-3xl max-w-lg w-full">
             <h1 className="text-4xl font-bold text-red-400 mb-4 italic tracking-tighter">死咗機呀！</h1>
-            <pre className="bg-black/40 backdrop-blur-md p-4 rounded-xl text-[10px] text-left max-w-full overflow-auto mb-6 border border-white/5 text-zinc-400">
+            <pre className="bg-black/40 backdrop-blur-md p-4 rounded-xl text-[10px] text-left max-w-full overflow-auto mb-6 border border-zinc-500/10 text-zinc-400">
               {this.state.error?.toString()}
             </pre>
             <p className="text-zinc-400 mb-8 text-sm">通常係 Firebase 設定或者網域授權問題。檢查下 Console 啦損友。</p>
@@ -178,6 +181,18 @@ export default function App() {
   const [settleDate, setSettleDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    if (isDark) {
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+    }
+  }, [theme]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -454,7 +469,7 @@ export default function App() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="fixed inset-0 h-[100dvh] w-screen z-[200] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center overflow-hidden"
+            className="fixed inset-0 h-[100dvh] w-screen z-[200] bg-[var(--bg-color)] flex flex-col items-center justify-center p-6 text-center overflow-hidden"
             onClick={() => setIsSplashed(false)}
           >
             {/* Liquid Glass Background Elements */}
@@ -497,7 +512,7 @@ export default function App() {
             key="main"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="min-h-[100dvh] bg-transparent text-zinc-100 font-sans pb-24 relative"
+            className="min-h-[100dvh] bg-transparent font-sans pb-24 relative"
           >
             {/* Liquid Glass Background Elements */}
             <div className="glass-blob blob-1" />
@@ -505,7 +520,7 @@ export default function App() {
             <div className="glass-blob blob-3" />
 
             {/* Header */}
-            <header className="p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-white/5 sticky top-0 bg-zinc-950/40 backdrop-blur-xl z-50">
+            <header className="p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-zinc-500/10 sticky top-0 backdrop-blur-xl z-50">
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -513,6 +528,22 @@ export default function App() {
                 <h1 className="text-2xl font-black tracking-tighter text-orange-500 italic">味真香慈善啤王大賽 🃏</h1>
                 <p className="text-xs text-zinc-500 italic">小賭怡情 大賭變李嘉誠 ♠️♥️♦️♣️</p>
               </motion.div>
+
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => {
+                    const themes: ('light' | 'dark' | 'system')[] = ['light', 'dark', 'system'];
+                    const next = themes[(themes.indexOf(theme) + 1) % themes.length];
+                    setTheme(next);
+                  }}
+                  className="p-2 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white transition-colors"
+                  title={`切換主題 (目前: ${theme})`}
+                >
+                  {theme === 'light' && <Sun size={20} />}
+                  {theme === 'dark' && <Moon size={20} />}
+                  {theme === 'system' && <Monitor size={20} />}
+                </button>
+              </div>
             </header>
 
             <main className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
@@ -549,7 +580,7 @@ export default function App() {
                                 <span className="text-2xl font-black text-zinc-700">0{i+1}</span>
                                 <div>
                                   <p className="font-bold">{s.name}</p>
-                                  <p className="text-xs text-zinc-500 italic">{getNickname(i, stats.length, s.totalPnL)}</p>
+                                  <p className="text-xs text-zinc-500 italic">{getNickname(i, stats.length, s.totalPnL, s.id)}</p>
                                 </div>
                               </div>
                               <p className="text-green-500 font-mono font-bold">+{s.totalPnL}</p>
@@ -580,7 +611,7 @@ export default function App() {
                                 <span className="text-2xl font-black text-zinc-700">0{i+1}</span>
                                 <div>
                                   <p className="font-bold">{s.name}</p>
-                                  <p className="text-xs text-zinc-500 italic">{getNickname(stats.length - 1 - i, stats.length, s.totalPnL)}</p>
+                                  <p className="text-xs text-zinc-500 italic">{getNickname(stats.length - 1 - i, stats.length, s.totalPnL, s.id)}</p>
                                 </div>
                               </div>
                               <p className="text-red-500 font-mono font-bold">{s.totalPnL}</p>
@@ -663,7 +694,7 @@ export default function App() {
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.6 + idx * 0.05 }}
-                              className="flex justify-between items-center p-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/5 group"
+                              className="flex justify-between items-center p-3 bg-zinc-500/10 backdrop-blur-sm rounded-xl border border-zinc-500/10 group"
                             >
                               <div className="flex items-center gap-3">
                                 <div className={cn(
@@ -928,7 +959,7 @@ export default function App() {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: i * 0.1 }}
-                              className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5"
+                              className="flex items-center justify-between p-4 bg-zinc-500/10 rounded-2xl border border-zinc-500/10"
                             >
                               <div className="flex flex-col">
                                 <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">俾錢嗰個</span>
@@ -936,8 +967,8 @@ export default function App() {
                               </div>
                               
                               <div className="flex flex-col items-center px-4">
-                                <div className="text-orange-400 font-black text-xl mb-1">${t.amount}</div>
-                                <ArrowRight size={20} className="text-zinc-600" />
+                                <div className="text-orange-500 font-black text-xl mb-1">${t.amount}</div>
+                                <ArrowRight size={20} className="text-zinc-400" />
                               </div>
 
                               <div className="flex flex-col items-end">
@@ -947,7 +978,7 @@ export default function App() {
                             </motion.div>
                           ))}
                           
-                          <div className="pt-6 border-t border-white/5">
+                          <div className="pt-6 border-t border-zinc-500/10">
                             <div className="flex items-center gap-2 text-zinc-500 text-xs italic justify-center">
                               <CheckCircle2 size={14} />
                               <span>跟住上面咁找數，大家就兩清啦！</span>
@@ -956,8 +987,8 @@ export default function App() {
                         </div>
                       ) : (
                         <div className="text-center py-16">
-                          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <HandCoins size={40} className="text-zinc-800" />
+                          <div className="w-20 h-20 bg-zinc-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <HandCoins size={40} className="text-zinc-400" />
                           </div>
                           <p className="text-zinc-400 font-black text-lg uppercase tracking-widest">NO DEBTS FOUND</p>
                           <p className="text-xs text-zinc-600 mt-2 max-w-[200px] mx-auto">
