@@ -87,6 +87,57 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId: string | undefined;
+    email: string | null | undefined;
+    emailVerified: boolean | undefined;
+    isAnonymous: boolean | undefined;
+    tenantId: string | null | undefined;
+    providerInfo: {
+      providerId: string;
+      displayName: string | null;
+      email: string | null;
+      photoUrl: string | null;
+    }[];
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData.map(provider => ({
+        providerId: provider.providerId,
+        displayName: provider.displayName,
+        email: provider.email,
+        photoUrl: provider.photoURL
+      })) || []
+    },
+    operationType,
+    path
+  }
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
 export default function App() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [records, setRecords] = useState<GameRecord[]>([]);
@@ -120,12 +171,19 @@ export default function App() {
         // Seed initial players if empty
         if (playersData.length === 0) {
           INITIAL_PLAYER_NAMES.forEach(async (name) => {
-            await addDoc(collection(db, 'players'), {
-              name,
-              createdAt: Date.now()
-            });
+            try {
+              await addDoc(collection(db, 'players'), {
+                name,
+                createdAt: Date.now()
+              });
+            } catch (error) {
+              handleFirestoreError(error, OperationType.CREATE, 'players');
+            }
           });
         }
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.GET, 'players');
       }
     );
 
@@ -134,6 +192,9 @@ export default function App() {
       (snapshot) => {
         const recordsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GameRecord));
         setRecords(recordsData);
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.GET, 'records');
       }
     );
 
@@ -161,7 +222,7 @@ export default function App() {
       setAmount('');
       // Keep date and player for quick entry
     } catch (err) {
-      console.error('Error adding record:', err);
+      handleFirestoreError(err, OperationType.CREATE, 'records');
     }
   };
 
@@ -176,7 +237,7 @@ export default function App() {
       });
       setNewPlayerName('');
     } catch (err) {
-      console.error('Error adding player:', err);
+      handleFirestoreError(err, OperationType.CREATE, 'players');
     }
   };
 
@@ -185,7 +246,7 @@ export default function App() {
     try {
       await deleteDoc(doc(db, 'records', id));
     } catch (err) {
-      console.error('Error deleting record:', err);
+      handleFirestoreError(err, OperationType.DELETE, `records/${id}`);
     }
   };
 
@@ -448,7 +509,11 @@ export default function App() {
                       <button 
                         onClick={async () => {
                           if (confirm(`真係要踢走 ${p.name}？佢仲爭緊錢喎！`)) {
-                            await deleteDoc(doc(db, 'players', p.id));
+                            try {
+                              await deleteDoc(doc(db, 'players', p.id));
+                            } catch (err) {
+                              handleFirestoreError(err, OperationType.DELETE, `players/${p.id}`);
+                            }
                           }
                         }}
                         className="p-2 text-zinc-600 hover:text-red-500 transition-colors"
