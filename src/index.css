@@ -54,8 +54,8 @@ input[type="date"]::-webkit-clear-button {
   width: 400px;
   height: 400px;
   background: #f97316; /* orange-500 */
-  top: -100px;
-  right: -100px;
+  top: 25%;
+  right: -150px;
   animation: float 20s infinite alternate;
 }
 
