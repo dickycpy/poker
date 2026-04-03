@@ -336,19 +336,11 @@ export default function App() {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="relative flex flex-col items-center"
             >
-              <div className="w-48 h-48 md:w-64 md:h-64 rounded-3xl overflow-hidden mb-8 shadow-2xl border-4 border-orange-500/30 rotate-3 hover:rotate-0 transition-transform duration-500">
-                <img 
-                  src="https://images.weserv.nl/?url=https://ais-pre-jsg275qnhubzpsj732jkyy-794420763709.asia-southeast1.run.app/attachment/0f462589-9815-4670-8b9a-4c278076625d" 
-                  alt="App Icon" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-2 italic leading-tight">
+              <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 italic leading-tight">
                 味真香<br />
                 <span className="text-orange-500">慈善啤王大賽</span>
               </h1>
-              <p className="text-orange-400 font-bold text-xl mb-12 italic tracking-widest">
+              <p className="text-orange-400/80 font-bold text-xl mb-12 italic tracking-widest">
                 小賭怡情 大賭變李嘉誠
               </p>
             </motion.div>
@@ -356,12 +348,12 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 1 }}
-              className="mt-auto mb-12"
+              transition={{ delay: 0.8, duration: 1 }}
+              className="mt-auto mb-16"
             >
-              <button className="group flex flex-col items-center gap-4">
-                <div className="px-8 py-4 rounded-full glass-card flex items-center justify-center group-hover:border-orange-500 transition-all shadow-2xl active:scale-95">
-                  <span className="text-lg font-black tracking-[0.3em] text-white uppercase">點擊開始</span>
+              <button className="group flex flex-col items-center gap-3">
+                <div className="px-10 py-2 rounded-full flex items-center justify-center transition-all active:scale-95">
+                  <span className="text-xs font-bold tracking-[0.5em] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">點擊開始</span>
                 </div>
               </button>
             </motion.div>
@@ -428,7 +420,6 @@ export default function App() {
                         className="glass-card p-6 rounded-3xl"
                       >
                         <div className="flex items-center gap-2 text-green-400 mb-4">
-                          <Trophy size={24} />
                           <h2 className="text-xl font-bold">今日賭神 (Top 3)</h2>
                         </div>
                         <div className="space-y-4">
@@ -460,7 +451,6 @@ export default function App() {
                         className="glass-card p-6 rounded-3xl"
                       >
                         <div className="flex items-center gap-2 text-red-400 mb-4">
-                          <Skull size={24} />
                           <h2 className="text-xl font-bold">提款機 (Bottom 3)</h2>
                         </div>
                         <div className="space-y-4">
@@ -574,7 +564,7 @@ export default function App() {
                       )}
                     </AnimatePresence>
 
-                    <h2 className="text-2xl font-bold mb-8 text-center italic">入帳啦！(或者入土)</h2>
+                    <h2 className="text-2xl font-bold mb-8 text-center italic">入帳啦！(或者入土🪦)</h2>
                     <form onSubmit={handleAddRecord} className="space-y-6">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-zinc-400">日期</label>
@@ -739,7 +729,7 @@ export default function App() {
                   >
                     <div className="p-6 border-b border-white/10 flex justify-between items-center">
                       <h2 className="text-xl font-bold flex items-center gap-2 italic">
-                        <Trophy size={20} className="text-orange-400" /> 全員戰力榜
+                        全員戰力榜
                       </h2>
                       <button onClick={() => setShowAllStats(false)} className="text-zinc-500 hover:text-white">
                         <X size={24} />
