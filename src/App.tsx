@@ -181,13 +181,11 @@ export default function App() {
   const [settleDate, setSettleDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
     const root = window.document.documentElement;
-    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    
-    if (isDark) {
+    if (theme === 'dark') {
       root.classList.remove('light');
     } else {
       root.classList.add('light');
@@ -484,7 +482,7 @@ export default function App() {
                 transition={{ delay: 0.2, duration: 0.8 }}
                 className="relative flex flex-col items-center"
               >
-                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 italic leading-tight">
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-primary mb-4 italic leading-tight">
                   味真香<br />
                   <span className="text-orange-500">慈善啤王大賽 🃏</span>
                 </h1>
@@ -501,7 +499,7 @@ export default function App() {
               >
                 <button className="group flex flex-col items-center gap-3">
                   <div className="px-10 py-2 rounded-full flex items-center justify-center transition-all active:scale-95">
-                    <span className="text-xs font-bold tracking-[0.5em] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">點擊開始</span>
+                    <span className="text-xs font-bold tracking-[0.5em] text-muted group-hover:text-primary uppercase transition-colors">點擊開始</span>
                   </div>
                 </button>
               </motion.div>
@@ -526,22 +524,16 @@ export default function App() {
                 animate={{ x: 0, opacity: 1 }}
               >
                 <h1 className="text-2xl font-black tracking-tighter text-orange-500 italic">味真香慈善啤王大賽 🃏</h1>
-                <p className="text-xs text-zinc-500 italic">小賭怡情 大賭變李嘉誠 ♠️♥️♦️♣️</p>
+                <p className="text-xs text-muted italic">小賭怡情 大賭變李嘉誠 ♠️♥️♦️♣️</p>
               </motion.div>
 
               <div className="flex items-center gap-2">
                 <button 
-                  onClick={() => {
-                    const themes: ('light' | 'dark' | 'system')[] = ['light', 'dark', 'system'];
-                    const next = themes[(themes.indexOf(theme) + 1) % themes.length];
-                    setTheme(next);
-                  }}
-                  className="p-2 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white transition-colors"
-                  title={`切換主題 (目前: ${theme})`}
+                  onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                  className="p-2 rounded-full bg-zinc-500/10 border border-zinc-500/10 text-muted hover:text-nav-hover transition-colors"
+                  title={`切換主題 (目前: ${theme === 'light' ? '淺色' : '深色'})`}
                 >
-                  {theme === 'light' && <Sun size={20} />}
-                  {theme === 'dark' && <Moon size={20} />}
-                  {theme === 'system' && <Monitor size={20} />}
+                  {theme === 'light' ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
               </div>
             </header>
@@ -577,10 +569,10 @@ export default function App() {
                               className="flex justify-between items-center"
                             >
                               <div className="flex items-center gap-3">
-                                <span className="text-2xl font-black text-zinc-700">0{i+1}</span>
+                                <span className="text-2xl font-black text-zinc-500/20">0{i+1}</span>
                                 <div>
                                   <p className="font-bold">{s.name}</p>
-                                  <p className="text-xs text-zinc-500 italic">{getNickname(i, stats.length, s.totalPnL, s.id)}</p>
+                                  <p className="text-xs text-muted italic">{getNickname(i, stats.length, s.totalPnL, s.id)}</p>
                                 </div>
                               </div>
                               <p className="text-green-500 font-mono font-bold">+{s.totalPnL}</p>
@@ -608,10 +600,10 @@ export default function App() {
                               className="flex justify-between items-center"
                             >
                               <div className="flex items-center gap-3">
-                                <span className="text-2xl font-black text-zinc-700">0{i+1}</span>
+                                <span className="text-2xl font-black text-muted/20">0{i+1}</span>
                                 <div>
-                                  <p className="font-bold">{s.name}</p>
-                                  <p className="text-xs text-zinc-500 italic">{getNickname(stats.length - 1 - i, stats.length, s.totalPnL, s.id)}</p>
+                                  <p className="font-bold text-primary">{s.name}</p>
+                                  <p className="text-xs text-muted italic">{getNickname(stats.length - 1 - i, stats.length, s.totalPnL, s.id)}</p>
                                 </div>
                               </div>
                               <p className="text-red-500 font-mono font-bold">{s.totalPnL}</p>
@@ -660,7 +652,7 @@ export default function App() {
                                 "text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1",
                                 recordSortBy === 'date' 
                                   ? "bg-orange-500/20 border-orange-500/50 text-orange-400" 
-                                  : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
+                                  : "bg-zinc-500/10 border-zinc-500/10 text-muted hover:text-primary"
                               )}
                             >
                               日期 {recordSortBy === 'date' && (recordSortOrder === 'desc' ? '↓' : '↑')}
@@ -673,14 +665,14 @@ export default function App() {
                           <select 
                             value={filterPlayerId}
                             onChange={(e) => setFilterPlayerId(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-base font-bold text-zinc-300 focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
+                            className="w-full bg-zinc-500/10 border border-zinc-500/10 rounded-xl px-4 py-2 text-base font-bold text-primary focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
                           >
                             <option value="all">所有損友 (All Players)</option>
                             {players.map(p => (
                               <option key={p.id} value={p.id}>{p.name}</option>
                             ))}
                           </select>
-                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
                             <Users size={14} />
                           </div>
                         </div>
@@ -704,8 +696,8 @@ export default function App() {
                                   {player?.name[0]}
                                 </div>
                                 <div>
-                                  <p className="font-bold">{player?.name || '未知生物'}</p>
-                                  <p className="text-xs text-zinc-500">{r.date}</p>
+                                  <p className="font-bold text-primary">{player?.name || '未知生物'}</p>
+                                  <p className="text-xs text-muted">{r.date}</p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 md:gap-4">
@@ -756,27 +748,27 @@ export default function App() {
                     <h2 className="text-2xl font-bold mb-8 text-center italic">入帳啦！🃏 (或者入土🪦)</h2>
                     <form onSubmit={handleAddRecord} className="space-y-6">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-400">日期</label>
+                        <label className="text-sm font-medium text-muted">日期</label>
                         <div className="relative">
                           <input 
                             type="date" 
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
-                            className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors box-border appearance-none text-white text-base"
+                            className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors box-border appearance-none text-primary text-base"
                             style={{ WebkitAppearance: 'none' }}
                           />
-                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
                             <Calendar size={20} />
                           </div>
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-400">邊位水魚？</label>
+                        <label className="text-sm font-medium text-muted">邊位水魚？</label>
                         <select 
                           value={selectedPlayerId}
                           onChange={(e) => setSelectedPlayerId(e.target.value)}
-                          className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors appearance-none text-base"
+                          className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors appearance-none text-base text-primary"
                         >
                           <option value="">揀返個名先...</option>
                           {players.map(p => (
@@ -786,15 +778,15 @@ export default function App() {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-400">贏/輸幾多？ (輸就入負數啦)</label>
+                        <label className="text-sm font-medium text-muted">贏/輸幾多？ (輸就入負數啦)</label>
                         <div className="relative">
-                          <Coins className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
+                          <Coins className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={20} />
                           <input 
                             type="number" 
                             placeholder="例如: 500 或 -200"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className="w-full glass-input rounded-xl p-4 pl-12 focus:outline-none focus:border-orange-500 transition-colors text-base"
+                            className="w-full glass-input rounded-xl p-4 pl-12 focus:outline-none focus:border-orange-500 transition-colors text-base text-primary"
                           />
                         </div>
                       </div>
@@ -827,11 +819,11 @@ export default function App() {
                           placeholder="入個名嚟..."
                           value={newPlayerName}
                           onChange={(e) => setNewPlayerName(e.target.value)}
-                          className="flex-1 glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors text-base"
+                          className="flex-1 glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors text-base text-primary"
                         />
                         <button 
                           type="submit"
-                          className="bg-white text-black font-bold px-6 rounded-xl hover:bg-orange-500 hover:text-white transition-all active:scale-95"
+                          className="bg-zinc-900 dark:bg-white text-white dark:text-black font-bold px-6 rounded-xl hover:bg-orange-500 hover:text-white transition-all active:scale-95"
                         >
                           <Plus size={24} />
                         </button>
@@ -864,14 +856,14 @@ export default function App() {
                               </button>
                               <button 
                                 onClick={() => setEditingPlayerId(null)}
-                                className="text-zinc-500 hover:text-zinc-400"
+                                className="text-muted hover:text-red-500 transition-colors"
                               >
                                 <X size={18} />
                               </button>
                             </div>
                           ) : (
                             <>
-                              <span className="font-bold truncate">{p.name}</span>
+                              <span className="font-bold truncate text-primary">{p.name}</span>
                               <div className="flex gap-1">
                                 <button 
                                   onClick={() => {
@@ -926,13 +918,13 @@ export default function App() {
                         </div>
 
                         <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
                             <Calendar size={18} />
                           </div>
                           <select 
                             value={settleDate}
                             onChange={(e) => setSettleDate(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-base font-bold text-zinc-200 focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
+                            className="w-full bg-zinc-500/10 border border-zinc-500/10 rounded-2xl pl-12 pr-4 py-3 text-base font-bold text-primary focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
                           >
                             {availableDates.map(d => (
                               <option key={d} value={d}>{d} {d === format(new Date(), 'yyyy-MM-dd') ? '(今日)' : ''}</option>
@@ -962,8 +954,8 @@ export default function App() {
                               className="flex items-center justify-between p-4 bg-zinc-500/10 rounded-2xl border border-zinc-500/10"
                             >
                               <div className="flex flex-col">
-                                <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">俾錢嗰個</span>
-                                <span className="font-bold text-lg">{t.from}</span>
+                                <span className="text-xs text-muted uppercase tracking-widest mb-1">俾錢嗰個</span>
+                                <span className="font-bold text-lg text-primary">{t.from}</span>
                               </div>
                               
                               <div className="flex flex-col items-center px-4">
@@ -972,14 +964,14 @@ export default function App() {
                               </div>
 
                               <div className="flex flex-col items-end">
-                                <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">收錢嗰個</span>
-                                <span className="font-bold text-lg">{t.to}</span>
+                                <span className="text-xs text-muted uppercase tracking-widest mb-1">收錢嗰個</span>
+                                <span className="font-bold text-lg text-primary">{t.to}</span>
                               </div>
                             </motion.div>
                           ))}
                           
                           <div className="pt-6 border-t border-zinc-500/10">
-                            <div className="flex items-center gap-2 text-zinc-500 text-xs italic justify-center">
+                            <div className="flex items-center gap-2 text-muted text-xs italic justify-center">
                               <CheckCircle2 size={14} />
                               <span>跟住上面咁找數，大家就兩清啦！</span>
                             </div>
@@ -988,10 +980,10 @@ export default function App() {
                       ) : (
                         <div className="text-center py-16">
                           <div className="w-20 h-20 bg-zinc-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <HandCoins size={40} className="text-zinc-400" />
+                            <HandCoins size={40} className="text-muted" />
                           </div>
-                          <p className="text-zinc-400 font-black text-lg uppercase tracking-widest">NO DEBTS FOUND</p>
-                          <p className="text-xs text-zinc-600 mt-2 max-w-[200px] mx-auto">
+                          <p className="text-muted font-black text-lg uppercase tracking-widest">NO DEBTS FOUND</p>
+                          <p className="text-xs text-muted mt-2 max-w-[200px] mx-auto">
                             {settleDate === format(new Date(), 'yyyy-MM-dd') 
                               ? "今日暫時仲未有數要找，快啲去開波啦！" 
                               : "呢一日冇任何入帳紀錄。"}
@@ -1025,26 +1017,26 @@ export default function App() {
                       <h2 className="text-xl font-bold flex items-center gap-2 italic">
                         全員戰力榜
                       </h2>
-                      <button onClick={() => setShowAllStats(false)} className="text-zinc-500 hover:text-white">
+                      <button onClick={() => setShowAllStats(false)} className="text-muted hover:text-nav-hover">
                         <X size={24} />
                       </button>
                     </div>
                     <div className="p-6 max-h-[70vh] overflow-y-auto">
                       <table className="w-full text-left">
                         <thead>
-                          <tr className="text-zinc-500 text-xs uppercase tracking-wider border-b border-white/10">
+                          <tr className="text-muted text-xs uppercase tracking-wider border-b border-zinc-500/10">
                             <th className="pb-4 font-medium">排名</th>
                             <th className="pb-4 font-medium">損友</th>
                             <th className="pb-4 font-medium text-right">場數</th>
                             <th className="pb-4 font-medium text-right">總 PnL</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5">
+                        <tbody className="divide-y divide-zinc-500/10">
                           {stats.map((s, i) => (
                             <tr key={s.id} className="group">
-                              <td className="py-4 text-zinc-500 font-mono">{i + 1}</td>
-                              <td className="py-4 font-bold">{s.name}</td>
-                              <td className="py-4 text-right text-zinc-400">{s.gamesPlayed}</td>
+                              <td className="py-4 text-muted font-mono">{i + 1}</td>
+                              <td className="py-4 font-bold text-primary">{s.name}</td>
+                              <td className="py-4 text-right text-muted">{s.gamesPlayed}</td>
                               <td className={cn(
                                 "py-4 text-right font-mono font-bold",
                                 s.totalPnL >= 0 ? "text-green-400" : "text-red-400"
@@ -1056,8 +1048,8 @@ export default function App() {
                         </tbody>
                       </table>
                     </div>
-                    <div className="p-6 bg-white/5 text-center">
-                      <p className="text-xs text-zinc-500 italic">"贏就一齊贏，輸就你一個輸。"</p>
+                    <div className="p-6 bg-zinc-500/5 text-center">
+                      <p className="text-xs text-muted italic">"贏就一齊贏，輸就你一個輸。"</p>
                     </div>
                   </motion.div>
                 </motion.div>
@@ -1075,7 +1067,7 @@ export default function App() {
                 onClick={() => setActiveTab('dashboard')}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-1 px-2 py-3 rounded-full transition-all",
-                  activeTab === 'dashboard' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
+                  activeTab === 'dashboard' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-muted hover:text-nav-hover"
                 )}
               >
                 <LayoutDashboard size={18} className="shrink-0" />
@@ -1085,7 +1077,7 @@ export default function App() {
                 onClick={() => setActiveTab('settle')}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-1 px-2 py-3 rounded-full transition-all",
-                  activeTab === 'settle' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
+                  activeTab === 'settle' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-muted hover:text-nav-hover"
                 )}
               >
                 <HandCoins size={18} className="shrink-0" />
@@ -1095,7 +1087,7 @@ export default function App() {
                 onClick={() => setActiveTab('record')}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-1 px-2 py-3 rounded-full transition-all",
-                  activeTab === 'record' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
+                  activeTab === 'record' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-muted hover:text-nav-hover"
                 )}
               >
                 <Plus size={18} className="shrink-0" />
@@ -1105,7 +1097,7 @@ export default function App() {
                 onClick={() => setActiveTab('players')}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-1 px-2 py-3 rounded-full transition-all",
-                  activeTab === 'players' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
+                  activeTab === 'players' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-muted hover:text-nav-hover"
                 )}
               >
                 <Users size={18} className="shrink-0" />
