@@ -175,6 +175,7 @@ export default function App() {
   const [recordSortOrder, setRecordSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filterPlayerId, setFilterPlayerId] = useState<string>('all');
   const [copied, setCopied] = useState(false);
+  const [settleDate, setSettleDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -352,9 +353,36 @@ export default function App() {
     return stats.reduce((sum, s) => sum + s.totalPnL, 0);
   }, [stats]);
 
+  const availableDates = useMemo(() => {
+    const dates = Array.from(new Set(records.map(r => r.date)));
+    // Ensure today is in the list if it's the default
+    const today = format(new Date(), 'yyyy-MM-dd');
+    if (!dates.includes(today)) {
+      dates.push(today);
+    }
+    return dates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+  }, [records]);
+
+  const settleStats = useMemo(() => {
+    const filteredRecords = records.filter(r => r.date === settleDate);
+    return players.map(player => {
+      const playerRecords = filteredRecords.filter(r => r.playerId === player.id);
+      const totalPnL = playerRecords.reduce((sum, r) => sum + r.amount, 0);
+      return {
+        id: player.id,
+        name: player.name,
+        totalPnL,
+      };
+    }).filter(s => s.totalPnL !== 0);
+  }, [players, records, settleDate]);
+
+  const settleTotalSum = useMemo(() => {
+    return settleStats.reduce((sum, s) => sum + s.totalPnL, 0);
+  }, [settleStats]);
+
   const settlementTransactions = useMemo(() => {
-    const givers = stats.filter(s => s.totalPnL < 0).map(s => ({ name: s.name, balance: Math.abs(s.totalPnL) }));
-    const receivers = stats.filter(s => s.totalPnL > 0).map(s => ({ name: s.name, balance: s.totalPnL }));
+    const givers = settleStats.filter(s => s.totalPnL < 0).map(s => ({ name: s.name, balance: Math.abs(s.totalPnL) }));
+    const receivers = settleStats.filter(s => s.totalPnL > 0).map(s => ({ name: s.name, balance: s.totalPnL }));
 
     // Sort descending to minimize number of transactions
     givers.sort((a, b) => b.balance - a.balance);
@@ -389,11 +417,12 @@ export default function App() {
     }
 
     return transactions;
-  }, [stats]);
+  }, [settleStats]);
 
   const handleCopySettlement = () => {
     const text = settlementTransactions.map(t => `${t.from} ➔ $${t.amount} ➔ ${t.to}`).join('\n');
-    navigator.clipboard.writeText(`味真香慈善啤王大賽 - 找數清單 🃏\n\n${text}\n\n大家快啲找數啦！💸`).then(() => {
+    const dateStr = format(new Date(settleDate), 'yyyy年MM月dd日');
+    navigator.clipboard.writeText(`味真香慈善啤王大賽 - 找數清單 (${dateStr}) 🃏\n\n${text}\n\n大家快啲找數啦！💸`).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -829,30 +858,47 @@ export default function App() {
                     className="space-y-6"
                   >
                     <div className="glass-card p-6 rounded-3xl">
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-bold flex items-center gap-2">
-                          <HandCoins size={20} className="text-orange-400" /> 找數計算機 💸
-                        </h2>
-                        {settlementTransactions.length > 0 && (
-                          <button 
-                            onClick={handleCopySettlement}
-                            className={cn(
-                              "text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 transition-all",
-                              copied ? "bg-green-500 text-white" : "bg-orange-500 text-white hover:bg-orange-600"
-                            )}
+                      <div className="flex flex-col gap-6 mb-8">
+                        <div className="flex justify-between items-center">
+                          <h2 className="text-xl font-bold flex items-center gap-2">
+                            <HandCoins size={20} className="text-orange-400" /> 找數計算機 💸
+                          </h2>
+                          {settlementTransactions.length > 0 && (
+                            <button 
+                              onClick={handleCopySettlement}
+                              className={cn(
+                                "text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 transition-all",
+                                copied ? "bg-green-500 text-white" : "bg-orange-500 text-white hover:bg-orange-600"
+                              )}
+                            >
+                              {copied ? <Check size={14} /> : <Copy size={14} />}
+                              {copied ? "已複製" : "複製清單"}
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="relative">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
+                            <Calendar size={18} />
+                          </div>
+                          <select 
+                            value={settleDate}
+                            onChange={(e) => setSettleDate(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-base font-bold text-zinc-200 focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
                           >
-                            {copied ? <Check size={14} /> : <Copy size={14} />}
-                            {copied ? "已複製" : "複製清單"}
-                          </button>
-                        )}
+                            {availableDates.map(d => (
+                              <option key={d} value={d}>{d} {d === format(new Date(), 'yyyy-MM-dd') ? '(今日)' : ''}</option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
 
-                      {totalSum !== 0 && (
-                        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6 flex items-start gap-3">
+                      {settleTotalSum !== 0 && settleStats.length > 0 && (
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-8 flex items-start gap-3">
                           <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
                           <div className="text-sm text-red-200">
-                            <p className="font-bold mb-1">數目唔對！(Total: {totalSum > 0 ? `+${totalSum}` : totalSum})</p>
-                            <p className="text-xs opacity-80">可能入錯咗數，或者有人未入齊。正常總和應該係 0。</p>
+                            <p className="font-bold mb-1">數目唔對！(Total: {settleTotalSum > 0 ? `+${settleTotalSum}` : settleTotalSum})</p>
+                            <p className="text-xs opacity-80">今日嘅數好似入錯咗，或者有人未入齊。總和應該係 0。</p>
                           </div>
                         </div>
                       )}
@@ -862,42 +908,64 @@ export default function App() {
                           {settlementTransactions.map((t, i) => (
                             <motion.div 
                               key={i}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: i * 0.1 }}
-                              className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5"
+                              className="relative overflow-hidden group"
                             >
-                              <div className="flex flex-col">
-                                <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">俾錢嗰個</span>
-                                <span className="font-bold text-lg">{t.from}</span>
-                              </div>
-                              
-                              <div className="flex flex-col items-center px-4">
-                                <div className="text-orange-400 font-black text-xl mb-1">${t.amount}</div>
-                                <ArrowRight size={20} className="text-zinc-600" />
-                              </div>
+                              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 via-transparent to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              <div className="relative flex items-center justify-between p-5 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
+                                <div className="flex flex-col">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                                    <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">PAYER</span>
+                                  </div>
+                                  <span className="font-black text-xl text-white">{t.from}</span>
+                                </div>
+                                
+                                <div className="flex flex-col items-center px-6 relative">
+                                  <div className="absolute -top-6 text-[10px] font-black text-orange-500/50 tracking-tighter">TRANSFER</div>
+                                  <div className="bg-orange-500 text-white px-4 py-1.5 rounded-full font-black text-lg shadow-lg shadow-orange-500/30 z-10">
+                                    ${t.amount}
+                                  </div>
+                                  <div className="w-px h-8 bg-gradient-to-b from-orange-500/50 to-transparent absolute top-full mt-1" />
+                                  <ArrowRight size={24} className="text-zinc-700 mt-2" />
+                                </div>
 
-                              <div className="flex flex-col items-end">
-                                <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">收錢嗰個</span>
-                                <span className="font-bold text-lg">{t.to}</span>
+                                <div className="flex flex-col items-end">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">RECEIVER</span>
+                                    <div className="w-2 h-2 rounded-full bg-green-400" />
+                                  </div>
+                                  <span className="font-black text-xl text-white">{t.to}</span>
+                                </div>
                               </div>
                             </motion.div>
                           ))}
                           
-                          <div className="pt-6 border-t border-white/5">
-                            <div className="flex items-center gap-2 text-zinc-500 text-xs italic justify-center">
-                              <CheckCircle2 size={14} />
-                              <span>跟住上面咁找數，大家就兩清啦！</span>
+                          <div className="pt-8 mt-4 border-t border-white/5">
+                            <div className="flex flex-col items-center gap-3 text-center">
+                              <div className="flex items-center gap-2 text-green-400 font-bold text-sm">
+                                <CheckCircle2 size={18} />
+                                <span>計算完成！</span>
+                              </div>
+                              <p className="text-xs text-zinc-500 max-w-[200px] leading-relaxed">
+                                根據 {format(new Date(settleDate), 'MM月dd日')} 嘅戰報，以上係最快嘅清數方法。
+                              </p>
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="text-center py-12">
-                          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <HandCoins size={32} className="text-zinc-700" />
+                        <div className="text-center py-16">
+                          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <HandCoins size={40} className="text-zinc-800" />
                           </div>
-                          <p className="text-zinc-500 font-bold">暫時冇數要找</p>
-                          <p className="text-xs text-zinc-600 mt-1">入咗戰報之後，呢度會自動計數。</p>
+                          <p className="text-zinc-400 font-black text-lg uppercase tracking-widest">NO DEBTS FOUND</p>
+                          <p className="text-xs text-zinc-600 mt-2 max-w-[200px] mx-auto">
+                            {settleDate === format(new Date(), 'yyyy-MM-dd') 
+                              ? "今日暫時仲未有數要找，快啲去開波啦！" 
+                              : "呢一日冇任何入帳紀錄。"}
+                          </p>
                         </div>
                       )}
                     </div>
