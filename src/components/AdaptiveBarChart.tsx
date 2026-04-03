@@ -61,7 +61,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
         )}
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto pr-2 scrollbar-hide">
+      <div className="flex-1 space-y-4 overflow-y-auto pr-2 scrollbar-hide touch-pan-y">
         {processedData.map((item, index) => {
           const percentage = (Math.abs(item.PnL) / maxAbsPnL) * 100;
           const isPositive = item.PnL >= 0;
@@ -72,7 +72,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="group"
+              className="group cursor-pointer"
               onClick={() => setShowTooltip({ name: item.name, value: item.PnL })}
             >
               <div className="flex justify-between items-end mb-1.5">
@@ -103,7 +103,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
       </div>
 
       <p className="text-[10px] text-zinc-600 mt-4 text-center italic">
-        * 顯示今日最威同埋最水嘅損友
+        * 顯示累計最威同埋最水嘅損友
       </p>
 
       {/* Detail Modal for Mobile */}
@@ -133,7 +133,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
                   "p-4 rounded-2xl text-center",
                   showTooltip.value >= 0 ? "bg-green-400/10 border border-green-400/20" : "bg-red-400/10 border border-red-400/20"
                 )}>
-                  <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">今日總計</p>
+                  <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">累計總計</p>
                   <p className={cn(
                     "text-4xl font-black font-mono",
                     showTooltip.value >= 0 ? "text-green-400" : "text-red-400"
