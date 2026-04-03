@@ -55,7 +55,12 @@ import {
   Check,
   X,
   Calendar,
-  ArrowUpDown
+  ArrowUpDown,
+  HandCoins,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+  Copy
 } from 'lucide-react';
 
 const INITIAL_PLAYER_NAMES = ['掌門', '蕃茄', 'Dicky', 'Hauyi', 'Hugo', 'Ken', 'Kiki', 'Leo Law', 'Matthew'];
@@ -154,7 +159,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 export default function App() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [records, setRecords] = useState<GameRecord[]>([]);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'record' | 'players'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'record' | 'players' | 'settle'>('dashboard');
   
   // Form states
   const [selectedPlayerId, setSelectedPlayerId] = useState('');
@@ -169,6 +174,11 @@ export default function App() {
   const [recordSortBy, setRecordSortBy] = useState<'date' | 'name'>('date');
   const [recordSortOrder, setRecordSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filterPlayerId, setFilterPlayerId] = useState<string>('all');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
 
   useEffect(() => {
     // Test Firestore Connection
@@ -337,6 +347,57 @@ export default function App() {
       }
     });
   }, [records, players, recordSortBy, recordSortOrder, filterPlayerId]);
+
+  const totalSum = useMemo(() => {
+    return stats.reduce((sum, s) => sum + s.totalPnL, 0);
+  }, [stats]);
+
+  const settlementTransactions = useMemo(() => {
+    const givers = stats.filter(s => s.totalPnL < 0).map(s => ({ name: s.name, balance: Math.abs(s.totalPnL) }));
+    const receivers = stats.filter(s => s.totalPnL > 0).map(s => ({ name: s.name, balance: s.totalPnL }));
+
+    // Sort descending to minimize number of transactions
+    givers.sort((a, b) => b.balance - a.balance);
+    receivers.sort((a, b) => b.balance - a.balance);
+
+    const transactions: { from: string; to: string; amount: number }[] = [];
+    let gIdx = 0;
+    let rIdx = 0;
+
+    // Use a copy to not mutate the original objects in useMemo
+    const gList = givers.map(g => ({ ...g }));
+    const rList = receivers.map(r => ({ ...r }));
+
+    while (gIdx < gList.length && rIdx < rList.length) {
+      const giver = gList[gIdx];
+      const receiver = rList[rIdx];
+      const amount = Math.min(giver.balance, receiver.balance);
+
+      if (amount > 0) {
+        transactions.push({
+          from: giver.name,
+          to: receiver.name,
+          amount: amount
+        });
+      }
+
+      giver.balance -= amount;
+      receiver.balance -= amount;
+
+      if (giver.balance <= 0.01) gIdx++; // Handle floating point precision
+      if (receiver.balance <= 0.01) rIdx++;
+    }
+
+    return transactions;
+  }, [stats]);
+
+  const handleCopySettlement = () => {
+    const text = settlementTransactions.map(t => `${t.from} ➔ $${t.amount} ➔ ${t.to}`).join('\n');
+    navigator.clipboard.writeText(`味真香慈善啤王大賽 - 找數清單 🃏\n\n${text}\n\n大家快啲找數啦！💸`).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   return (
     <ErrorBoundary>
@@ -758,6 +819,90 @@ export default function App() {
                     </div>
                   </motion.div>
                 )}
+
+                {activeTab === 'settle' && (
+                  <motion.div 
+                    key="settle"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="glass-card p-6 rounded-3xl">
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-2">
+                          <HandCoins size={20} className="text-orange-400" /> 找數計算機 💸
+                        </h2>
+                        {settlementTransactions.length > 0 && (
+                          <button 
+                            onClick={handleCopySettlement}
+                            className={cn(
+                              "text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 transition-all",
+                              copied ? "bg-green-500 text-white" : "bg-orange-500 text-white hover:bg-orange-600"
+                            )}
+                          >
+                            {copied ? <Check size={14} /> : <Copy size={14} />}
+                            {copied ? "已複製" : "複製清單"}
+                          </button>
+                        )}
+                      </div>
+
+                      {totalSum !== 0 && (
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6 flex items-start gap-3">
+                          <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
+                          <div className="text-sm text-red-200">
+                            <p className="font-bold mb-1">數目唔對！(Total: {totalSum > 0 ? `+${totalSum}` : totalSum})</p>
+                            <p className="text-xs opacity-80">可能入錯咗數，或者有人未入齊。正常總和應該係 0。</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {settlementTransactions.length > 0 ? (
+                        <div className="space-y-4">
+                          {settlementTransactions.map((t, i) => (
+                            <motion.div 
+                              key={i}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: i * 0.1 }}
+                              className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5"
+                            >
+                              <div className="flex flex-col">
+                                <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">俾錢嗰個</span>
+                                <span className="font-bold text-lg">{t.from}</span>
+                              </div>
+                              
+                              <div className="flex flex-col items-center px-4">
+                                <div className="text-orange-400 font-black text-xl mb-1">${t.amount}</div>
+                                <ArrowRight size={20} className="text-zinc-600" />
+                              </div>
+
+                              <div className="flex flex-col items-end">
+                                <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">收錢嗰個</span>
+                                <span className="font-bold text-lg">{t.to}</span>
+                              </div>
+                            </motion.div>
+                          ))}
+                          
+                          <div className="pt-6 border-t border-white/5">
+                            <div className="flex items-center gap-2 text-zinc-500 text-xs italic justify-center">
+                              <CheckCircle2 size={14} />
+                              <span>跟住上面咁找數，大家就兩清啦！</span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <HandCoins size={32} className="text-zinc-700" />
+                          </div>
+                          <p className="text-zinc-500 font-bold">暫時冇數要找</p>
+                          <p className="text-xs text-zinc-600 mt-1">入咗戰報之後，呢度會自動計數。</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
           </main>
@@ -826,32 +971,42 @@ export default function App() {
               <button 
                 onClick={() => setActiveTab('dashboard')}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
+                  "flex-1 flex items-center justify-center gap-1 px-2 py-3 rounded-full transition-all",
                   activeTab === 'dashboard' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
                 )}
               >
-                <LayoutDashboard size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">戰報</span>
+                <LayoutDashboard size={18} className="shrink-0" />
+                <span className="text-[10px] font-bold whitespace-nowrap">戰報</span>
+              </button>
+              <button 
+                onClick={() => setActiveTab('settle')}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-1 px-2 py-3 rounded-full transition-all",
+                  activeTab === 'settle' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
+                )}
+              >
+                <HandCoins size={18} className="shrink-0" />
+                <span className="text-[10px] font-bold whitespace-nowrap">找數</span>
               </button>
               <button 
                 onClick={() => setActiveTab('record')}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
+                  "flex-1 flex items-center justify-center gap-1 px-2 py-3 rounded-full transition-all",
                   activeTab === 'record' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
                 )}
               >
-                <Plus size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">入帳</span>
+                <Plus size={18} className="shrink-0" />
+                <span className="text-[10px] font-bold whitespace-nowrap">入帳</span>
               </button>
               <button 
                 onClick={() => setActiveTab('players')}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
+                  "flex-1 flex items-center justify-center gap-1 px-2 py-3 rounded-full transition-all",
                   activeTab === 'players' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
                 )}
               >
-                <Users size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">損友</span>
+                <Users size={18} className="shrink-0" />
+                <span className="text-[10px] font-bold whitespace-nowrap">損友</span>
               </button>
             </nav>
           </motion.div>
