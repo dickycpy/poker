@@ -47,8 +47,9 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
 
   // 2. Chart Behavior Logic (Vertical vs Horizontal)
   const isHorizontalLayout = useMemo(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const labelThreshold = 10;
-    return processedData.some(d => d.name.length > labelThreshold);
+    return isMobile || processedData.some(d => d.name.length > labelThreshold);
   }, [processedData]);
 
   // 3. Scrolling Experience Logic
@@ -56,6 +57,12 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
     if (processedData.length <= 6 || isHorizontalLayout) return '100%';
     // Minimum bar width 60px + padding
     return `${processedData.length * 70}px`;
+  }, [processedData.length, isHorizontalLayout]);
+
+  const chartHeight = useMemo(() => {
+    if (!isHorizontalLayout) return '100%';
+    // For horizontal layout, each bar needs at least 60px height to be readable
+    return `${Math.max(300, processedData.length * 60)}px`;
   }, [processedData.length, isHorizontalLayout]);
 
   const renderTooltip = (props: any) => {
@@ -108,7 +115,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
           "h-full",
           !isHorizontalLayout ? "overflow-x-auto scrollbar-hide" : "overflow-y-auto"
         )}>
-          <div style={{ width: chartWidth, height: '100%', minHeight: isHorizontalLayout ? `${processedData.length * 50}px` : 'auto' }}>
+          <div style={{ width: chartWidth, height: chartHeight }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={processedData} 
