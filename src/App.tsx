@@ -176,6 +176,23 @@ export default function App() {
   const [filterPlayerId, setFilterPlayerId] = useState<string>('all');
   const [copied, setCopied] = useState(false);
   const [settleDate, setSettleDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsNavVisible(false);
+      } else {
+        setIsNavVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -908,50 +925,32 @@ export default function App() {
                           {settlementTransactions.map((t, i) => (
                             <motion.div 
                               key={i}
-                              initial={{ opacity: 0, scale: 0.95 }}
-                              animate={{ opacity: 1, scale: 1 }}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: i * 0.1 }}
-                              className="relative overflow-hidden group"
+                              className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5"
                             >
-                              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 via-transparent to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                              <div className="relative flex items-center justify-between p-5 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
-                                <div className="flex flex-col">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-                                    <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">PAYER</span>
-                                  </div>
-                                  <span className="font-black text-xl text-white">{t.from}</span>
-                                </div>
-                                
-                                <div className="flex flex-col items-center px-6 relative">
-                                  <div className="absolute -top-6 text-[10px] font-black text-orange-500/50 tracking-tighter">TRANSFER</div>
-                                  <div className="bg-orange-500 text-white px-4 py-1.5 rounded-full font-black text-lg shadow-lg shadow-orange-500/30 z-10">
-                                    ${t.amount}
-                                  </div>
-                                  <div className="w-px h-8 bg-gradient-to-b from-orange-500/50 to-transparent absolute top-full mt-1" />
-                                  <ArrowRight size={24} className="text-zinc-700 mt-2" />
-                                </div>
+                              <div className="flex flex-col">
+                                <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">俾錢嗰個</span>
+                                <span className="font-bold text-lg">{t.from}</span>
+                              </div>
+                              
+                              <div className="flex flex-col items-center px-4">
+                                <div className="text-orange-400 font-black text-xl mb-1">${t.amount}</div>
+                                <ArrowRight size={20} className="text-zinc-600" />
+                              </div>
 
-                                <div className="flex flex-col items-end">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">RECEIVER</span>
-                                    <div className="w-2 h-2 rounded-full bg-green-400" />
-                                  </div>
-                                  <span className="font-black text-xl text-white">{t.to}</span>
-                                </div>
+                              <div className="flex flex-col items-end">
+                                <span className="text-xs text-zinc-500 uppercase tracking-widest mb-1">收錢嗰個</span>
+                                <span className="font-bold text-lg">{t.to}</span>
                               </div>
                             </motion.div>
                           ))}
                           
-                          <div className="pt-8 mt-4 border-t border-white/5">
-                            <div className="flex flex-col items-center gap-3 text-center">
-                              <div className="flex items-center gap-2 text-green-400 font-bold text-sm">
-                                <CheckCircle2 size={18} />
-                                <span>計算完成！</span>
-                              </div>
-                              <p className="text-xs text-zinc-500 max-w-[200px] leading-relaxed">
-                                根據 {format(new Date(settleDate), 'MM月dd日')} 嘅戰報，以上係最快嘅清數方法。
-                              </p>
+                          <div className="pt-6 border-t border-white/5">
+                            <div className="flex items-center gap-2 text-zinc-500 text-xs italic justify-center">
+                              <CheckCircle2 size={14} />
+                              <span>跟住上面咁找數，大家就兩清啦！</span>
                             </div>
                           </div>
                         </div>
@@ -1035,7 +1034,12 @@ export default function App() {
             </AnimatePresence>
 
             {/* Bottom Nav */}
-            <nav className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md glass-card rounded-full p-1.5 flex gap-1 shadow-2xl z-50">
+            <motion.nav 
+              initial={{ y: 0 }}
+              animate={{ y: isNavVisible ? 0 : 100 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md glass-card rounded-full p-1.5 flex gap-1 shadow-2xl z-50"
+            >
               <button 
                 onClick={() => setActiveTab('dashboard')}
                 className={cn(
@@ -1076,7 +1080,7 @@ export default function App() {
                 <Users size={18} className="shrink-0" />
                 <span className="text-[10px] font-bold whitespace-nowrap">損友</span>
               </button>
-            </nav>
+            </motion.nav>
           </motion.div>
         )}
       </AnimatePresence>
