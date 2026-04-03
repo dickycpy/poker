@@ -364,7 +364,7 @@ export default function App() {
               >
                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 italic leading-tight">
                   味真香<br />
-                  <span className="text-orange-500">慈善啤王大賽</span>
+                  <span className="text-orange-500">慈善啤王大賽 🃏</span>
                 </h1>
                 <p className="text-orange-400/80 font-bold text-xl mb-12 italic tracking-widest">
                   小賭怡情 大賭變李嘉誠
@@ -406,30 +406,13 @@ export default function App() {
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
               >
-                <h1 className="text-2xl font-black tracking-tighter text-orange-500 italic">味真香慈善啤王大賽</h1>
-                <p className="text-xs text-zinc-500 italic">小賭怡情 大賭變李嘉誠</p>
+                <h1 className="text-2xl font-black tracking-tighter text-orange-500 italic">味真香慈善啤王大賽 🃏</h1>
+                <p className="text-xs text-zinc-500 italic">小賭怡情 大賭變李嘉誠 ♠️♥️♦️♣️</p>
               </motion.div>
             </header>
 
             <main className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-              <motion.div
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.2}
-                onDragEnd={(_, info) => {
-                  const swipeThreshold = 50;
-                  if (info.offset.x < -swipeThreshold) {
-                    // Swipe Left -> Next Tab
-                    if (activeTab === 'dashboard') setActiveTab('record');
-                    else if (activeTab === 'record') setActiveTab('players');
-                  } else if (info.offset.x > swipeThreshold) {
-                    // Swipe Right -> Prev Tab
-                    if (activeTab === 'players') setActiveTab('record');
-                    else if (activeTab === 'record') setActiveTab('dashboard');
-                  }
-                }}
-                className="touch-pan-y"
-              >
+              <div className="touch-pan-y">
                 <AnimatePresence mode="wait">
                 {activeTab === 'dashboard' && (
                   <motion.div 
@@ -447,7 +430,7 @@ export default function App() {
                         className="glass-card p-6 rounded-3xl"
                       >
                         <div className="flex items-center gap-2 text-green-400 mb-4">
-                          <h2 className="text-xl font-bold">慈善啤王三巨頭</h2>
+                          <h2 className="text-xl font-bold">慈善啤王三巨頭 🏆</h2>
                         </div>
                         <div className="space-y-4">
                           {stats.slice(0, 3).map((s, i) => (
@@ -478,7 +461,7 @@ export default function App() {
                         className="glass-card p-6 rounded-3xl"
                       >
                         <div className="flex items-center gap-2 text-red-400 mb-4">
-                          <h2 className="text-xl font-bold">All-time 提款機</h2>
+                          <h2 className="text-xl font-bold">All-time 提款機 🏧</h2>
                         </div>
                         <div className="space-y-4">
                           {[...stats].reverse().slice(0, 3).map((s, i) => (
@@ -526,7 +509,7 @@ export default function App() {
                       <div className="flex flex-col gap-4 mb-6">
                         <div className="flex justify-between items-center">
                           <h2 className="text-xl font-bold flex items-center gap-2">
-                            <History size={20} className="text-orange-400" /> 最近戰報
+                            <History size={20} className="text-orange-400" /> 最近戰報 📜
                           </h2>
                           <div className="flex items-center gap-2">
                             <button 
@@ -546,24 +529,6 @@ export default function App() {
                               )}
                             >
                               日期 {recordSortBy === 'date' && (recordSortOrder === 'desc' ? '↓' : '↑')}
-                            </button>
-                            <button 
-                              onClick={() => {
-                                if (recordSortBy === 'name') {
-                                  setRecordSortOrder(recordSortOrder === 'asc' ? 'desc' : 'asc');
-                                } else {
-                                  setRecordSortBy('name');
-                                  setRecordSortOrder('desc');
-                                }
-                              }}
-                              className={cn(
-                                "text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1",
-                                recordSortBy === 'name' 
-                                  ? "bg-orange-500/20 border-orange-500/50 text-orange-400" 
-                                  : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
-                              )}
-                            >
-                              人名 {recordSortBy === 'name' && (recordSortOrder === 'desc' ? '↓' : '↑')}
                             </button>
                           </div>
                         </div>
@@ -650,7 +615,7 @@ export default function App() {
                       )}
                     </AnimatePresence>
 
-                    <h2 className="text-2xl font-bold mb-8 text-center italic">入帳啦！(或者入土🪦)</h2>
+                    <h2 className="text-2xl font-bold mb-8 text-center italic">入帳啦！🃏 (或者入土🪦)</h2>
                     <form onSubmit={handleAddRecord} className="space-y-6">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-zinc-400">日期</label>
@@ -716,7 +681,7 @@ export default function App() {
                   >
                     <div className="glass-card p-6 rounded-3xl">
                       <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <UserPlus size={20} className="text-orange-400" /> 新增損友
+                        <UserPlus size={20} className="text-orange-400" /> 新增損友 👥
                       </h2>
                       <form onSubmit={handleAddPlayer} className="flex gap-2">
                         <input 
@@ -794,7 +759,7 @@ export default function App() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </div>
           </main>
 
             {/* View All Stats Modal */}
@@ -866,7 +831,7 @@ export default function App() {
                 )}
               >
                 <LayoutDashboard size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">戰報</span>
+                <span className="text-sm font-bold whitespace-nowrap">戰報 📊</span>
               </button>
               <button 
                 onClick={() => setActiveTab('record')}
@@ -876,7 +841,7 @@ export default function App() {
                 )}
               >
                 <Plus size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">入帳</span>
+                <span className="text-sm font-bold whitespace-nowrap">入帳 ✍️</span>
               </button>
               <button 
                 onClick={() => setActiveTab('players')}
@@ -886,7 +851,7 @@ export default function App() {
                 )}
               >
                 <Users size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">損友</span>
+                <span className="text-sm font-bold whitespace-nowrap">損友 👥</span>
               </button>
             </nav>
           </motion.div>
