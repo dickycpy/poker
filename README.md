@@ -1,52 +1,51 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 味真香慈善啤王大賽 (Poker Tracker) 🃏
 
-# Run and deploy your AI Studio app
+呢個係一個專為「味真香慈善啤王大賽」而設嘅戰報追蹤應用程式。旨在幫一班損友記錄每一場嘅贏輸，分析戰力，同埋最緊要係——**自動計返邊個要俾錢邊個！**
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/28ab1fbb-92b5-4f69-b069-e5d8b3ecbab3
+## 🚀 快速上手指南 (User Guide)
 
-## Run Locally
+### 1. 損友管理 (Players) 👥
+*   **新增損友**：去「損友」分頁，輸入損友嘅大名（例如：掌門、蕃茄），點擊「新增」。
+*   **刪除損友**：如果有人退出咗「味真香」，可以點擊垃圾桶圖示刪除。
 
-**Prerequisites:**  Node.js
+### 2. 記錄戰報 (Records) 📝
+*   **入帳**：去「入帳」分頁。
+*   **選擇日期**：預設係今日，你亦可以補返尋日或者之前嘅數。
+*   **輸入贏輸**：選擇損友，輸入金額（贏錢入正數，輸錢入負數，例如 `-50`）。
+*   **即時更新**：入完之後，系統會自動計返今日嘅總結。
 
+### 3. 查看戰況 (Dashboard) 📊
+*   **三巨頭 & 提款機**：首頁會即時顯示今日最強嘅 3 位「賭神」同埋最慘嘅 3 位「提款機」。
+*   **戰力分佈圖**：用直觀嘅圖表睇返邊個贏得最勁，邊個輸得最甘。
+*   **稱號系統**：系統會根據表現自動派發稱號（例如：賭神、慈善家、提款機），稱號係固定嘅，唔會閃閃下。
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-   
-# 味真香慈善啤王大賽 (Poker Tracker)
+### 4. 找數計算機 (Settlement) 💰
+*   **自動對沖**：去「找數」分頁。
+*   **日期篩選**：選擇你想找數嘅日期。
+*   **找數方案**：系統會自動幫你計好最精簡嘅找數方法（例如：A 俾 $50 俾 B），唔洗再自己慢慢計。
+*   **一鍵複製**：點擊「複製找數清單」，直接貼去 WhatsApp Group 叫人找數！
 
-呢個係一個專為「味真香慈善啤王大賽」而設嘅戰報追蹤應用程式。
+### 5. 主題切換 (Themes) ☀️/🌙
+*   **淺色/深色模式**：點擊頂部嘅圖示，可以隨時切換主題。預設會跟隨你手機嘅系統設定。
 
-## 功能
-- **戰報儀表板**：即時查看今日賭神 (Top 3) 同埋提款機 (Bottom 3)。
-- **戰力分佈圖**：用圖表顯示各個損友嘅贏輸情況。
-- **入帳功能**：快速記錄每一場嘅贏輸，支援日期選擇。
-- **損友管理**：管理參賽球員名單。
-- **即時更新**：使用 Firebase Firestore 實時同步數據。
+---
 
-## 技術棧
-- **Frontend**: React 19, Vite, Tailwind CSS, Recharts, Framer Motion (Motion)
-- **Backend/Database**: Firebase Firestore
-- **Icons**: Lucide React
+## ✨ 核心功能亮點 (App Features)
 
-## 部署說明 (Vercel)
-1. 將程式碼推送到 GitHub。
-2. 喺 Vercel 匯入專案。
-3. Vercel 會自動偵測 Vite 設定。
-4. 構建指令 (Build Command): `npm run build`
-5. 輸出目錄 (Output Directory): `dist`
+*   **即時同步**：使用 Firebase Firestore，所有損友開住 App 都可以即時睇到最新戰報。
+*   **極速體驗**：採用 Vite + React 19，操作流暢無比。
+*   **美觀 UI**：使用 Tailwind CSS 同埋 Framer Motion 打造嘅玻璃質感介面，仲有動態背景。
+*   **智能導覽**：向下捲動時導覽列會自動隱藏，向上捲動時自動顯示，騰出更多空間睇戰報。
+*   **確定性稱號**：修復咗稱號隨機跳動嘅問題，令每個損友嘅「榮譽」都係實至名歸。
 
-## 本地開發
-```bash
-npm install
-npm run dev
-```
+---
+
+## 🛠️ 技術棧
+*   **Frontend**: React 19, Vite, Tailwind CSS, Recharts, Framer Motion (Motion)
+*   **Backend/Database**: Firebase Firestore
+*   **Icons**: Lucide React
 
 ## 聲明
-本程式僅供娛樂及記錄用途，小賭怡情，大賭亂性。
+本程式僅供娛樂及記錄用途，小賭怡情，大賭亂性。♠️♥️♦️♣️
