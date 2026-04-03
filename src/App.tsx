@@ -49,7 +49,10 @@ import {
   UserPlus,
   Trophy,
   Skull,
-  Coins
+  Coins,
+  Edit2,
+  Check,
+  X
 } from 'lucide-react';
 
 const INITIAL_PLAYER_NAMES = ['掌門', '蕃茄', 'Dicky', 'Hauyi', 'Hugo', 'Ken', 'Kiki', 'Leo Law', 'Matthew'];
@@ -148,6 +151,8 @@ export default function App() {
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [newPlayerName, setNewPlayerName] = useState('');
+  const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
+  const [editingPlayerName, setEditingPlayerName] = useState('');
 
   useEffect(() => {
     // Test Firestore Connection
@@ -247,6 +252,27 @@ export default function App() {
       await deleteDoc(doc(db, 'records', id));
     } catch (err) {
       handleFirestoreError(err, OperationType.DELETE, `records/${id}`);
+    }
+  };
+
+  const handleDeletePlayer = async (id: string, name: string) => {
+    if (!confirm(`真係要踢走 ${name}？佢仲爭緊錢喎！`)) return;
+    try {
+      await deleteDoc(doc(db, 'players', id));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, `players/${id}`);
+    }
+  };
+
+  const handleUpdatePlayer = async (id: string) => {
+    if (!editingPlayerName.trim()) return;
+    try {
+      await updateDoc(doc(db, 'players', id), {
+        name: editingPlayerName.trim()
+      });
+      setEditingPlayerId(null);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, `players/${id}`);
     }
   };
 
@@ -396,13 +422,13 @@ export default function App() {
                               <p className="text-xs text-zinc-500">{r.date}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2 md:gap-4">
                             <p className={cn("font-mono font-bold", r.amount >= 0 ? "text-green-500" : "text-red-500")}>
                               {r.amount > 0 ? `+${r.amount}` : r.amount}
                             </p>
                             <button 
                               onClick={() => handleDeleteRecord(r.id)}
-                              className="opacity-0 group-hover:opacity-100 p-2 text-zinc-600 hover:text-red-500 transition-all"
+                              className="p-2 text-zinc-600 hover:text-red-500 transition-all md:opacity-0 md:group-hover:opacity-100"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -502,24 +528,53 @@ export default function App() {
                   </form>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {players.map(p => (
-                    <div key={p.id} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
-                      <span className="font-bold">{p.name}</span>
-                      <button 
-                        onClick={async () => {
-                          if (confirm(`真係要踢走 ${p.name}？佢仲爭緊錢喎！`)) {
-                            try {
-                              await deleteDoc(doc(db, 'players', p.id));
-                            } catch (err) {
-                              handleFirestoreError(err, OperationType.DELETE, `players/${p.id}`);
-                            }
-                          }
-                        }}
-                        className="p-2 text-zinc-600 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                    <div key={p.id} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center gap-2">
+                      {editingPlayerId === p.id ? (
+                        <div className="flex-1 flex gap-2">
+                          <input 
+                            type="text"
+                            value={editingPlayerName}
+                            onChange={(e) => setEditingPlayerName(e.target.value)}
+                            className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-orange-500"
+                            autoFocus
+                          />
+                          <button 
+                            onClick={() => handleUpdatePlayer(p.id)}
+                            className="text-green-500 hover:text-green-400"
+                          >
+                            <Check size={18} />
+                          </button>
+                          <button 
+                            onClick={() => setEditingPlayerId(null)}
+                            className="text-zinc-500 hover:text-zinc-400"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="font-bold truncate">{p.name}</span>
+                          <div className="flex gap-1">
+                            <button 
+                              onClick={() => {
+                                setEditingPlayerId(p.id);
+                                setEditingPlayerName(p.name);
+                              }}
+                              className="p-2 text-zinc-600 hover:text-orange-500 transition-colors"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <button 
+                              onClick={() => handleDeletePlayer(p.id, p.name)}
+                              className="p-2 text-zinc-600 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -529,36 +584,36 @@ export default function App() {
         </main>
 
         {/* Bottom Nav */}
-        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-full p-2 flex gap-1 shadow-2xl z-50">
+        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-full p-1.5 flex gap-1 shadow-2xl z-50">
           <button 
             onClick={() => setActiveTab('dashboard')}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-full transition-all",
+              "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
               activeTab === 'dashboard' ? "bg-orange-500 text-white" : "text-zinc-500 hover:text-white"
             )}
           >
-            <LayoutDashboard size={20} />
-            <span className="text-sm font-bold">戰報</span>
+            <LayoutDashboard size={20} className="shrink-0" />
+            <span className="text-sm font-bold whitespace-nowrap">戰報</span>
           </button>
           <button 
             onClick={() => setActiveTab('record')}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-full transition-all",
+              "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
               activeTab === 'record' ? "bg-orange-500 text-white" : "text-zinc-500 hover:text-white"
             )}
           >
-            <Plus size={20} />
-            <span className="text-sm font-bold">入帳</span>
+            <Plus size={20} className="shrink-0" />
+            <span className="text-sm font-bold whitespace-nowrap">入帳</span>
           </button>
           <button 
             onClick={() => setActiveTab('players')}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-full transition-all",
+              "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
               activeTab === 'players' ? "bg-orange-500 text-white" : "text-zinc-500 hover:text-white"
             )}
           >
-            <Users size={20} />
-            <span className="text-sm font-bold">損友</span>
+            <Users size={20} className="shrink-0" />
+            <span className="text-sm font-bold whitespace-nowrap">損友</span>
           </button>
         </nav>
       </div>
