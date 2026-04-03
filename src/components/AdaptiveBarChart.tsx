@@ -26,8 +26,6 @@ interface AdaptiveBarChartProps {
 }
 
 export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onViewAll }) => {
-  const [showTooltip, setShowTooltip] = useState<{ name: string, value: number } | null>(null);
-
   // 1. Adaptive Data Rendering Logic
   const processedData = useMemo(() => {
     // Sort by PnL descending for a "Leaderboard" feel
@@ -49,7 +47,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
     <div className="glass-card p-6 rounded-3xl flex flex-col h-full">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <TrendingUp size={20} className="text-orange-400" /> 戰力分佈圖
+          <TrendingUp size={20} className="text-orange-400" /> 戰力分佈圖 🃏
         </h2>
         {data.length > 10 && (
           <button 
@@ -72,8 +70,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="group cursor-pointer"
-              onClick={() => setShowTooltip({ name: item.name, value: item.PnL })}
+              className="group"
             >
               <div className="flex justify-between items-end mb-1.5">
                 <span className="text-sm font-bold text-zinc-300 group-hover:text-white transition-colors truncate max-w-[150px]">
@@ -105,50 +102,6 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
       <p className="text-[10px] text-zinc-600 mt-4 text-center italic">
         * 顯示累計最威同埋最水嘅損友
       </p>
-
-      {/* Detail Modal for Mobile */}
-      <AnimatePresence>
-        {showTooltip && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-          >
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTooltip(null)} />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="glass-card w-full max-w-xs rounded-3xl p-6 shadow-2xl relative z-10"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold italic">{showTooltip.name}</h3>
-                <button onClick={() => setShowTooltip(null)} className="text-zinc-500 hover:text-white">
-                  <X size={24} />
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div className={cn(
-                  "p-4 rounded-2xl text-center",
-                  showTooltip.value >= 0 ? "bg-green-400/10 border border-green-400/20" : "bg-red-400/10 border border-red-400/20"
-                )}>
-                  <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">累計總計</p>
-                  <p className={cn(
-                    "text-4xl font-black font-mono",
-                    showTooltip.value >= 0 ? "text-green-400" : "text-red-400"
-                  )}>
-                    {showTooltip.value > 0 ? `+${showTooltip.value}` : showTooltip.value}
-                  </p>
-                </div>
-                <p className="text-zinc-400 text-sm text-center italic">
-                  {showTooltip.value > 0 ? "「贏就一齊贏，輸就你一個輸。」" : "「唔緊要，下次贏返。」"}
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
