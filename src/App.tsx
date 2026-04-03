@@ -831,7 +831,7 @@ export default function App() {
                 )}
               >
                 <LayoutDashboard size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">戰報 📊</span>
+                <span className="text-sm font-bold whitespace-nowrap">戰報</span>
               </button>
               <button 
                 onClick={() => setActiveTab('record')}
@@ -841,7 +841,7 @@ export default function App() {
                 )}
               >
                 <Plus size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">入帳 ✍️</span>
+                <span className="text-sm font-bold whitespace-nowrap">入帳</span>
               </button>
               <button 
                 onClick={() => setActiveTab('players')}
@@ -851,7 +851,7 @@ export default function App() {
                 )}
               >
                 <Users size={20} className="shrink-0" />
-                <span className="text-sm font-bold whitespace-nowrap">損友 👥</span>
+                <span className="text-sm font-bold whitespace-nowrap">損友</span>
               </button>
             </nav>
           </motion.div>
