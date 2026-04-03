@@ -54,7 +54,8 @@ import {
   Edit2,
   Check,
   X,
-  Calendar
+  Calendar,
+  ArrowUpDown
 } from 'lucide-react';
 
 const INITIAL_PLAYER_NAMES = ['掌門', '蕃茄', 'Dicky', 'Hauyi', 'Hugo', 'Ken', 'Kiki', 'Leo Law', 'Matthew'];
@@ -165,6 +166,8 @@ export default function App() {
   const [showAllStats, setShowAllStats] = useState(false);
   const [isSplashed, setIsSplashed] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [recordSortBy, setRecordSortBy] = useState<'date' | 'name'>('date');
+  const [recordSortOrder, setRecordSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     // Test Firestore Connection
@@ -313,6 +316,22 @@ export default function App() {
     }));
   }, [stats]);
 
+  const sortedRecords = useMemo(() => {
+    return [...records].sort((a, b) => {
+      if (recordSortBy === 'date') {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return recordSortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+      } else {
+        const playerA = players.find(p => p.id === a.playerId)?.name || '';
+        const playerB = players.find(p => p.id === b.playerId)?.name || '';
+        return recordSortOrder === 'desc' 
+          ? playerB.localeCompare(playerA) 
+          : playerA.localeCompare(playerB);
+      }
+    });
+  }, [records, players, recordSortBy, recordSortOrder]);
+
   return (
     <ErrorBoundary>
       <AnimatePresence mode="wait">
@@ -420,7 +439,7 @@ export default function App() {
                         className="glass-card p-6 rounded-3xl"
                       >
                         <div className="flex items-center gap-2 text-green-400 mb-4">
-                          <h2 className="text-xl font-bold">今日賭神 (Top 3)</h2>
+                          <h2 className="text-xl font-bold">慈善啤王三巨頭</h2>
                         </div>
                         <div className="space-y-4">
                           {stats.slice(0, 3).map((s, i) => (
@@ -451,7 +470,7 @@ export default function App() {
                         className="glass-card p-6 rounded-3xl"
                       >
                         <div className="flex items-center gap-2 text-red-400 mb-4">
-                          <h2 className="text-xl font-bold">提款機 (Bottom 3)</h2>
+                          <h2 className="text-xl font-bold">All-time 提款機</h2>
                         </div>
                         <div className="space-y-4">
                           {[...stats].reverse().slice(0, 3).map((s, i) => (
@@ -496,11 +515,51 @@ export default function App() {
                       transition={{ delay: 0.5 }}
                       className="glass-card p-6 rounded-3xl"
                     >
-                      <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <History size={20} className="text-orange-400" /> 最近戰報
-                      </h2>
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-2">
+                          <History size={20} className="text-orange-400" /> 最近戰報
+                        </h2>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => {
+                              if (recordSortBy === 'date') {
+                                setRecordSortOrder(recordSortOrder === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setRecordSortBy('date');
+                                setRecordSortOrder('desc');
+                              }
+                            }}
+                            className={cn(
+                              "text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1",
+                              recordSortBy === 'date' 
+                                ? "bg-orange-500/20 border-orange-500/50 text-orange-400" 
+                                : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
+                            )}
+                          >
+                            日期 {recordSortBy === 'date' && (recordSortOrder === 'desc' ? '↓' : '↑')}
+                          </button>
+                          <button 
+                            onClick={() => {
+                              if (recordSortBy === 'name') {
+                                setRecordSortOrder(recordSortOrder === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setRecordSortBy('name');
+                                setRecordSortOrder('desc');
+                              }
+                            }}
+                            className={cn(
+                              "text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1",
+                              recordSortBy === 'name' 
+                                ? "bg-orange-500/20 border-orange-500/50 text-orange-400" 
+                                : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
+                            )}
+                          >
+                            人名 {recordSortBy === 'name' && (recordSortOrder === 'desc' ? '↓' : '↑')}
+                          </button>
+                        </div>
+                      </div>
                       <div className="space-y-3">
-                        {records.slice(0, 10).map((r, idx) => {
+                        {sortedRecords.slice(0, 10).map((r, idx) => {
                           const player = players.find(p => p.id === r.playerId);
                           return (
                             <motion.div 
