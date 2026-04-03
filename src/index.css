@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@layer base {
+  html, body {
+    @apply bg-zinc-950;
+    /* Ensure the background covers the entire viewport, including safe areas */
+    background-color: #09090b;
+  }
+}
