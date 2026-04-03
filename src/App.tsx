@@ -347,7 +347,7 @@ export default function App() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="fixed inset-0 z-[200] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center overflow-hidden"
+            className="fixed inset-0 h-[100dvh] w-screen z-[200] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center overflow-hidden"
             onClick={() => setIsSplashed(false)}
           >
             {/* Liquid Glass Background Elements */}
@@ -390,7 +390,7 @@ export default function App() {
             key="main"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="min-h-screen bg-transparent text-zinc-100 font-sans pb-24 relative"
+            className="min-h-[100dvh] bg-transparent text-zinc-100 font-sans pb-24 relative"
           >
             {/* Liquid Glass Background Elements */}
             <div className="glass-blob blob-1" />
