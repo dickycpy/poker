@@ -73,7 +73,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
               className="group"
             >
               <div className="flex justify-between items-end mb-1.5">
-                <span className="text-sm font-bold text-zinc-500 group-hover:text-inherit transition-colors truncate max-w-[150px]">
+                <span className="text-sm font-bold text-muted group-hover:text-primary transition-colors truncate max-w-[150px]">
                   {item.name}
                 </span>
                 <span className={cn(
@@ -99,7 +99,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
         })}
       </div>
 
-      <p className="text-[10px] text-zinc-600 mt-4 text-center italic">
+      <p className="text-[10px] text-muted mt-4 text-center italic">
         * 顯示累計最威同埋最水嘅損友
       </p>
     </div>
