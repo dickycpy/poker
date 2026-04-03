@@ -305,7 +305,7 @@ export default function App() {
     <ErrorBoundary>
       <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-24">
         {/* Header */}
-        <header className="p-6 flex justify-between items-center border-b border-zinc-900 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50">
+        <header className="p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-zinc-900 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50">
           <div>
             <h1 className="text-2xl font-black tracking-tighter text-orange-500 italic">味真香慈善啤王大賽</h1>
             <p className="text-xs text-zinc-500">今日邊個係水魚？</p>
@@ -618,7 +618,7 @@ export default function App() {
         </AnimatePresence>
 
         {/* Bottom Nav */}
-        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-full p-1.5 flex gap-1 shadow-2xl z-50">
+        <nav className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-full p-1.5 flex gap-1 shadow-2xl z-50">
           <button 
             onClick={() => setActiveTab('dashboard')}
             className={cn(
