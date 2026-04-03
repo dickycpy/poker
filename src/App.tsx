@@ -603,13 +603,16 @@ export default function App() {
                     <AnimatePresence>
                       {showSuccess && (
                         <motion.div
-                          initial={{ opacity: 0, y: -20 }}
+                          initial={{ opacity: 0, y: -100 }}
                           animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -20 }}
-                          className="absolute -top-12 left-0 right-0 flex justify-center"
+                          exit={{ opacity: 0, y: -100 }}
+                          className="fixed top-24 left-0 right-0 z-[100] flex justify-center px-6 pointer-events-none"
                         >
-                          <div className="glass-card text-green-400 px-6 py-2 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">
-                            <Check size={16} /> 入帳成功！
+                          <div className="glass-card text-green-400 px-8 py-3 rounded-full font-bold text-base shadow-2xl flex items-center gap-3 border border-green-500/30 backdrop-blur-2xl">
+                            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                              <Check size={20} />
+                            </div>
+                            入帳成功！
                           </div>
                         </motion.div>
                       )}
