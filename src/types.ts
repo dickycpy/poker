@@ -22,12 +22,19 @@ export const NICKNAMES: Record<NicknameType, string[]> = {
   ATM: ['慈善大王', '輸到仆街', '大慈善家', '輸到褲都甩'],
 };
 
-export function getNickname(rank: number, totalPlayers: number, amount: number): string {
+export function getNickname(rank: number, totalPlayers: number, amount: number, seed: string): string {
   const nicknames = amount > 0 
     ? (rank === 0 ? NICKNAMES.KING : NICKNAMES.WINNER)
     : amount < 0 
       ? (rank === totalPlayers - 1 ? NICKNAMES.ATM : NICKNAMES.LOSER)
       : NICKNAMES.NEUTRAL;
   
-  return nicknames[Math.floor(Math.random() * nicknames.length)];
+  // Simple deterministic hash from seed string
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  
+  return nicknames[Math.abs(hash) % nicknames.length];
 }
