@@ -22,6 +22,7 @@ import { db, auth } from './firebase';
 import { Player, GameRecord, getNickname } from './types';
 import { cn } from './lib/utils';
 import { format } from 'date-fns';
+import { AdaptiveBarChart } from './components/AdaptiveBarChart';
 import { 
   BarChart, 
   Bar, 
@@ -153,6 +154,7 @@ export default function App() {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
   const [editingPlayerName, setEditingPlayerName] = useState('');
+  const [showAllStats, setShowAllStats] = useState(false);
 
   useEffect(() => {
     // Test Firestore Connection
@@ -366,38 +368,11 @@ export default function App() {
                 </div>
 
                 {/* Chart */}
-                <div className="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 h-[400px]">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                    <TrendingUp size={20} className="text-orange-500" /> 戰力分佈圖
-                  </h2>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-                      <XAxis 
-                        dataKey="name" 
-                        stroke="#71717a" 
-                        fontSize={12} 
-                        tickLine={false} 
-                        axisLine={false} 
-                      />
-                      <YAxis 
-                        stroke="#71717a" 
-                        fontSize={12} 
-                        tickLine={false} 
-                        axisLine={false} 
-                        tickFormatter={(value) => `${value}`}
-                      />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px' }}
-                        itemStyle={{ color: '#f97316' }}
-                      />
-                      <Bar dataKey="PnL" radius={[4, 4, 0, 0]}>
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.PnL >= 0 ? '#22c55e' : '#ef4444'} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className="h-[400px]">
+                  <AdaptiveBarChart 
+                    data={chartData} 
+                    onViewAll={() => setShowAllStats(true)} 
+                  />
                 </div>
 
                 {/* Recent History */}
@@ -582,6 +557,65 @@ export default function App() {
             )}
           </AnimatePresence>
         </main>
+
+        {/* View All Stats Modal */}
+        <AnimatePresence>
+          {showAllStats && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            >
+              <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowAllStats(false)} />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative z-10"
+              >
+                <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+                  <h2 className="text-xl font-bold flex items-center gap-2 italic">
+                    <Trophy size={20} className="text-orange-500" /> 全員戰力榜
+                  </h2>
+                  <button onClick={() => setShowAllStats(false)} className="text-zinc-500 hover:text-white">
+                    <X size={24} />
+                  </button>
+                </div>
+                <div className="p-6 max-h-[70vh] overflow-y-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="text-zinc-500 text-xs uppercase tracking-wider border-b border-zinc-800">
+                        <th className="pb-4 font-medium">排名</th>
+                        <th className="pb-4 font-medium">損友</th>
+                        <th className="pb-4 font-medium text-right">場數</th>
+                        <th className="pb-4 font-medium text-right">總 PnL</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800/50">
+                      {stats.map((s, i) => (
+                        <tr key={s.id} className="group">
+                          <td className="py-4 text-zinc-500 font-mono">{i + 1}</td>
+                          <td className="py-4 font-bold">{s.name}</td>
+                          <td className="py-4 text-right text-zinc-400">{s.gamesPlayed}</td>
+                          <td className={cn(
+                            "py-4 text-right font-mono font-bold",
+                            s.totalPnL >= 0 ? "text-green-500" : "text-red-500"
+                          )}>
+                            {s.totalPnL > 0 ? `+${s.totalPnL}` : s.totalPnL}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="p-6 bg-zinc-950/50 text-center">
+                  <p className="text-xs text-zinc-500 italic">"贏就一齊贏，輸就你一個輸。"</p>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Bottom Nav */}
         <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-full p-1.5 flex gap-1 shadow-2xl z-50">
