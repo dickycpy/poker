@@ -18,8 +18,7 @@ import {
   getDocFromServer,
   Timestamp
 } from 'firebase/firestore';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { db, auth, signIn, logOut } from './firebase';
+import { db, auth } from './firebase';
 import { Player, GameRecord, getNickname } from './types';
 import { cn } from './lib/utils';
 import { format } from 'date-fns';
@@ -53,11 +52,11 @@ import {
   Coins
 } from 'lucide-react';
 
-const INITIAL_PLAYER_NAMES = ['Arial', 'Ben', 'Charmain', 'David', 'Eric', 'Fiona', 'Gary', 'Helen'];
+const INITIAL_PLAYER_NAMES = ['掌門', '蕃茄', 'Dicky', 'Hauyi', 'Hugo', 'Ken', 'Kiki', 'Leo Law', 'Matthew'];
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
-  constructor(props: any) {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false, error: null };
   }
@@ -89,8 +88,6 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 }
 
 export default function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
   const [players, setPlayers] = useState<Player[]>([]);
   const [records, setRecords] = useState<GameRecord[]>([]);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'record' | 'players'>('dashboard');
@@ -102,11 +99,6 @@ export default function App() {
   const [newPlayerName, setNewPlayerName] = useState('');
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setIsAuthReady(true);
-    });
-
     // Test Firestore Connection
     const testConnection = async () => {
       try {
@@ -118,12 +110,6 @@ export default function App() {
       }
     };
     testConnection();
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
 
     const playersUnsubscribe = onSnapshot(
       query(collection(db, 'players'), orderBy('createdAt', 'asc')),
@@ -155,7 +141,7 @@ export default function App() {
       playersUnsubscribe();
       recordsUnsubscribe();
     };
-  }, [user]);
+  }, []);
 
   const handleAddRecord = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -226,44 +212,15 @@ export default function App() {
     }));
   }, [stats]);
 
-  if (!isAuthReady) return <div className="flex items-center justify-center h-screen bg-zinc-950 text-white">載入中... (如果卡住咗，請檢查 Console)</div>;
-
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-zinc-950 text-white p-6 text-center">
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="max-w-md"
-        >
-          <h1 className="text-5xl font-black mb-4 tracking-tighter text-orange-500 italic">輸死你 POKER</h1>
-          <p className="text-zinc-400 mb-8 text-lg">
-            專門記錄邊個係贏家，邊個係提款機。<br/>
-            入嚟啦，睇下今日邊個送錢。
-          </p>
-          <button 
-            onClick={signIn}
-            className="flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-orange-500 hover:text-white transition-all active:scale-95"
-          >
-            <LogIn size={20} /> 用 Google 登入認命
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-24">
         {/* Header */}
         <header className="p-6 flex justify-between items-center border-b border-zinc-900 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50">
           <div>
-            <h1 className="text-2xl font-black tracking-tighter text-orange-500 italic">輸死你 POKER</h1>
+            <h1 className="text-2xl font-black tracking-tighter text-orange-500 italic">味真香慈善啤王大賽</h1>
             <p className="text-xs text-zinc-500">今日邊個係水魚？</p>
           </div>
-          <button onClick={logOut} className="p-2 text-zinc-500 hover:text-white transition-colors">
-            <LogOut size={20} />
-          </button>
         </header>
 
         <main className="p-4 max-w-4xl mx-auto">
