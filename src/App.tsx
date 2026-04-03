@@ -55,6 +55,7 @@ import {
   Check,
   X,
   Calendar,
+  CalendarCheck,
   ArrowUpDown,
   HandCoins,
   ArrowRight,
@@ -562,50 +563,48 @@ export default function App() {
                         <h2 className="text-xl font-bold italic">開局派牌規則 (House Rules) 🃏</h2>
                       </div>
                       
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="space-y-3">
-                          <p className="text-sm font-bold text-muted uppercase tracking-widest">每位玩家派發：</p>
-                          <div className="space-y-2 font-mono text-sm">
-                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
-                              <span className="text-primary">1 × $1000</span>
-                              <span className="text-orange-500 font-bold">$1000</span>
-                            </div>
-                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
-                              <span className="text-primary">1 × $500</span>
-                              <span className="text-orange-500 font-bold">$500</span>
-                            </div>
-                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
-                              <span className="text-primary">10 × $100</span>
-                              <span className="text-orange-500 font-bold">$1000</span>
-                            </div>
-                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
-                              <span className="text-primary">4 × $50</span>
-                              <span className="text-orange-500 font-bold">$200</span>
-                            </div>
-                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
-                              <span className="text-primary">10 × $20</span>
-                              <span className="text-orange-500 font-bold">$200</span>
-                            </div>
-                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
-                              <span className="text-primary">8 × $10</span>
-                              <span className="text-orange-500 font-bold">$80</span>
-                            </div>
-                            <div className="flex justify-between items-center p-2 bg-zinc-500/5 rounded-lg border border-zinc-500/10">
-                              <span className="text-primary">4 × $5</span>
-                              <span className="text-orange-500 font-bold">$20</span>
+                      <div className="space-y-6">
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 p-6 bg-zinc-500/5 rounded-3xl border border-zinc-500/10 relative overflow-hidden group">
+                          <div className="absolute inset-0 bg-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="flex flex-col items-center justify-center text-center">
+                            <div className="text-4xl font-black text-orange-500 mb-1">$3,000</div>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest">每位玩家總分 (Total Points)</p>
+                          </div>
+                          
+                          <div className="hidden sm:block w-px h-12 bg-zinc-500/20" />
+                          
+                          <div className="flex items-center gap-8">
+                            <div className="text-center">
+                              <div className="text-2xl font-black text-primary">38 塊</div>
+                              <div className="text-[10px] text-muted uppercase font-bold tracking-widest">籌碼總數 (Chips)</div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex flex-col justify-center items-center p-6 bg-orange-500/5 rounded-3xl border border-orange-500/20 text-center">
-                          <div className="text-4xl font-black text-orange-500 mb-2">$3,000</div>
-                          <p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">總分 (Total Points)</p>
-                          
-                          <div className="w-full h-px bg-orange-500/20 mb-4" />
-                          
-                          <div className="text-2xl font-black text-primary mb-1">38 塊</div>
-                          <p className="text-xs text-muted italic">籌碼總數 (Total Chips)</p>
-                          <p className="text-[10px] text-orange-500/60 mt-2 font-bold uppercase tracking-tighter">Very Playable! 🚀</p>
+                        <div className="space-y-4">
+                          <p className="text-sm font-bold text-muted uppercase tracking-widest flex items-center gap-2">
+                            <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                            每位玩家派發 (Per Player Distribution)
+                          </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 font-mono text-sm">
+                            {[
+                              { label: '1 × $1000', value: '$1000', color: '#f97316' },
+                              { label: '1 × $500', value: '$500', color: '#fb923c' },
+                              { label: '10 × $100', value: '$1000', color: '#fdba74' },
+                              { label: '4 × $50', value: '$200', color: '#fed7aa' },
+                              { label: '10 × $20', value: '$200', color: '#ffedd5' },
+                              { label: '8 × $10', value: '$80', color: '#fff7ed' },
+                              { label: '4 × $5', value: '$20', color: '#ffffff' },
+                            ].map((item, i) => (
+                              <div key={i} className="flex justify-between items-center p-3 bg-zinc-500/5 rounded-xl border border-zinc-500/10 hover:bg-zinc-500/10 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+                                  <span className="text-primary group-hover:translate-x-1 transition-transform">{item.label}</span>
+                                </div>
+                                <span className="text-orange-500 font-bold">{item.value}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </motion.div>
@@ -617,8 +616,9 @@ export default function App() {
                         transition={{ delay: 0.1 }}
                         className="glass-card p-6 rounded-3xl"
                       >
-                        <div className="flex items-center gap-2 text-green-400 mb-4">
-                          <h2 className="text-xl font-bold">慈善啤王三巨頭 🏆</h2>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Trophy className="text-orange-500" size={20} />
+                          <h2 className="text-xl font-bold text-primary">慈善啤王三巨頭 🏆</h2>
                         </div>
                         <div className="space-y-4">
                           {stats.slice(0, 3).map((s, i) => (
@@ -648,8 +648,9 @@ export default function App() {
                         transition={{ delay: 0.2 }}
                         className="glass-card p-6 rounded-3xl"
                       >
-                        <div className="flex items-center gap-2 text-red-400 mb-4">
-                          <h2 className="text-xl font-bold">All-time 提款機 🏧</h2>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Skull className="text-orange-500" size={20} />
+                          <h2 className="text-xl font-bold text-primary">All-time 提款機 🏧</h2>
                         </div>
                         <div className="space-y-4">
                           {[...stats].reverse().slice(0, 3).map((s, i) => (
@@ -670,6 +671,122 @@ export default function App() {
                               <p className="text-red-500 font-mono font-bold">{s.totalPnL}</p>
                             </motion.div>
                           ))}
+                        </div>
+                      </motion.div>
+
+                      <motion.div 
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="glass-card p-6 rounded-3xl"
+                      >
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-2">
+                            <CalendarCheck className="text-orange-500" size={24} />
+                            <h2 className="text-xl font-bold text-primary">勤力獎 (出席率) 📅</h2>
+                          </div>
+                          <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Total: {players.length}</span>
+                        </div>
+                        <div className="max-h-[300px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+                          {[...stats].sort((a, b) => b.gamesPlayed - a.gamesPlayed).map((s, i) => (
+                            <motion.div 
+                              key={s.id} 
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.4 + i * 0.05 }}
+                              className="flex justify-between items-center p-3 bg-zinc-500/5 rounded-xl border border-zinc-500/10 group hover:bg-zinc-500/10 transition-all"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className={cn(
+                                  "text-lg font-black w-6",
+                                  i < 3 ? "text-orange-500" : "text-muted/30"
+                                )}>
+                                  {i + 1}
+                                </span>
+                                <div>
+                                  <p className="font-bold text-primary">{s.name}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="text-right">
+                                  <p className="font-mono font-bold text-primary">{s.gamesPlayed} 場</p>
+                                  <div className="w-24 h-1 bg-zinc-500/10 rounded-full mt-1 overflow-hidden">
+                                    <div 
+                                      className="h-full bg-blue-500 rounded-full" 
+                                      style={{ width: `${(s.gamesPlayed / Math.max(...stats.map(st => st.gamesPlayed), 1)) * 100}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      <motion.div 
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.35 }}
+                        className="glass-card p-6 rounded-3xl"
+                      >
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="text-orange-500" size={24} />
+                            <h2 className="text-xl font-bold text-primary">平均每場 (Avg PnL) 📈</h2>
+                          </div>
+                        </div>
+                        <div className="max-h-[300px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+                          {[...stats]
+                            .filter(s => s.gamesPlayed > 0)
+                            .sort((a, b) => (b.totalPnL / b.gamesPlayed) - (a.totalPnL / a.gamesPlayed))
+                            .map((s, i) => {
+                              const avg = Math.round(s.totalPnL / s.gamesPlayed);
+                              return (
+                                <motion.div 
+                                  key={s.id} 
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: 0.45 + i * 0.05 }}
+                                  className="flex justify-between items-center p-3 bg-zinc-500/5 rounded-xl border border-zinc-500/10 group hover:bg-zinc-500/10 transition-all gap-4"
+                                >
+                                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <span className={cn(
+                                      "text-sm font-black w-8 shrink-0",
+                                      avg >= 0 ? "text-green-500" : "text-red-500"
+                                    )}>
+                                      {avg >= 0 ? '+' : ''}{avg}
+                                    </span>
+                                    <div className="min-w-0">
+                                      <p className="font-bold text-primary truncate">{s.name}</p>
+                                      <p className="text-[10px] text-muted italic truncate">
+                                        {s.totalPnL} / {s.gamesPlayed}場
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="shrink-0">
+                                    <div className="text-right">
+                                      <p className={cn(
+                                        "font-mono font-bold text-sm",
+                                        avg >= 0 ? "text-green-500" : "text-red-500"
+                                      )}>
+                                        {avg}
+                                      </p>
+                                      <div className="w-16 h-1 bg-zinc-500/10 rounded-full mt-1 overflow-hidden">
+                                        <div 
+                                          className={cn(
+                                            "h-full rounded-full",
+                                            avg >= 0 ? "bg-green-500" : "bg-red-500"
+                                          )}
+                                          style={{ 
+                                            width: `${Math.min(100, (Math.abs(avg) / Math.max(...stats.map(st => st.gamesPlayed > 0 ? Math.abs(Math.round(st.totalPnL / st.gamesPlayed)) : 0), 1)) * 100)}%` 
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              );
+                            })}
                         </div>
                       </motion.div>
                     </div>
@@ -841,13 +958,12 @@ export default function App() {
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-muted">贏/輸幾多？ (輸就入負數啦)</label>
                         <div className="relative">
-                          <Coins className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={20} />
                           <input 
                             type="number" 
                             placeholder="例如: 500 或 -200"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className="w-full glass-input rounded-xl p-4 pl-12 focus:outline-none focus:border-orange-500 transition-colors text-base text-primary"
+                            className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors text-base text-primary"
                           />
                         </div>
                       </div>
@@ -997,7 +1113,7 @@ export default function App() {
                       {settleTotalSum !== 0 && settleStats.length > 0 && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-8 flex items-start gap-3">
                           <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
-                          <div className="text-sm text-red-200">
+                          <div className="text-sm text-red-600 dark:text-red-400">
                             <p className="font-bold mb-1">數目唔對！(Total: {settleTotalSum > 0 ? `+${settleTotalSum}` : settleTotalSum})</p>
                             <p className="text-xs opacity-80">今日嘅數好似入錯咗，或者有人未入齊。總和應該係 0。</p>
                           </div>
