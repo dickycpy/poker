@@ -349,33 +349,35 @@ export default function App() {
             <div className="glass-blob blob-2" />
             <div className="glass-blob blob-3" />
             
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="relative flex flex-col items-center"
-            >
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 italic leading-tight">
-                味真香<br />
-                <span className="text-orange-500">慈善啤王大賽</span>
-              </h1>
-              <p className="text-orange-400/80 font-bold text-xl mb-12 italic tracking-widest">
-                小賭怡情 大賭變李嘉誠
-              </p>
-            </motion.div>
+            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg">
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                className="relative flex flex-col items-center"
+              >
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 italic leading-tight">
+                  味真香<br />
+                  <span className="text-orange-500">慈善啤王大賽</span>
+                </h1>
+                <p className="text-orange-400/80 font-bold text-xl mb-12 italic tracking-widest">
+                  小賭怡情 大賭變李嘉誠
+                </p>
+              </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 1 }}
-              className="mt-auto mb-16"
-            >
-              <button className="group flex flex-col items-center gap-3">
-                <div className="px-10 py-2 rounded-full flex items-center justify-center transition-all active:scale-95">
-                  <span className="text-xs font-bold tracking-[0.5em] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">點擊開始</span>
-                </div>
-              </button>
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8, duration: 1 }}
+                className="mt-8"
+              >
+                <button className="group flex flex-col items-center gap-3">
+                  <div className="px-10 py-2 rounded-full flex items-center justify-center transition-all active:scale-95">
+                    <span className="text-xs font-bold tracking-[0.5em] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">點擊開始</span>
+                  </div>
+                </button>
+              </motion.div>
+            </div>
 
             {/* Decorative Elements */}
             <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-orange-500/20 to-transparent" />
