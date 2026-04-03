@@ -72,18 +72,25 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-zinc-950 text-white p-10 flex flex-col items-center justify-center text-center">
-          <h1 className="text-4xl font-bold text-red-500 mb-4">死咗機呀！(App Crashed)</h1>
-          <pre className="bg-zinc-900 p-4 rounded-lg text-xs text-left max-w-full overflow-auto mb-6 border border-zinc-800">
-            {this.state.error?.toString()}
-          </pre>
-          <p className="text-zinc-400 mb-6">通常係 Firebase 設定或者網域授權問題。檢查下 Console 啦損友。</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-white text-black px-6 py-2 rounded-full font-bold"
-          >
-            重試一次
-          </button>
+        <div className="min-h-screen bg-zinc-950 text-white p-10 flex flex-col items-center justify-center text-center relative overflow-hidden">
+          {/* Liquid Glass Background Elements */}
+          <div className="glass-blob blob-1" />
+          <div className="glass-blob blob-2" />
+          <div className="glass-blob blob-3" />
+          
+          <div className="glass-card p-10 rounded-3xl max-w-lg w-full">
+            <h1 className="text-4xl font-bold text-red-400 mb-4 italic tracking-tighter">死咗機呀！</h1>
+            <pre className="bg-black/40 backdrop-blur-md p-4 rounded-xl text-[10px] text-left max-w-full overflow-auto mb-6 border border-white/5 text-zinc-400">
+              {this.state.error?.toString()}
+            </pre>
+            <p className="text-zinc-400 mb-8 text-sm">通常係 Firebase 設定或者網域授權問題。檢查下 Console 啦損友。</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="w-full bg-white text-black py-4 rounded-xl font-bold hover:bg-orange-500 hover:text-white transition-all active:scale-95 shadow-xl"
+            >
+              重試一次
+            </button>
+          </div>
         </div>
       );
     }
@@ -317,8 +324,10 @@ export default function App() {
             className="fixed inset-0 z-[200] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center overflow-hidden"
             onClick={() => setIsSplashed(false)}
           >
-            {/* Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none" />
+            {/* Liquid Glass Background Elements */}
+            <div className="glass-blob blob-1" />
+            <div className="glass-blob blob-2" />
+            <div className="glass-blob blob-3" />
             
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -346,12 +355,12 @@ export default function App() {
               className="mt-auto mb-12"
             >
               <button className="group flex flex-col items-center gap-4">
-                <div className="w-12 h-12 rounded-full border border-zinc-800 flex items-center justify-center group-hover:border-orange-500 transition-colors">
+                <div className="w-16 h-16 rounded-full glass-card flex items-center justify-center group-hover:border-orange-500 transition-colors shadow-2xl">
                   <motion.div
                     animate={{ y: [0, 5, 0] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                   >
-                    <Plus size={24} className="text-zinc-500 group-hover:text-orange-500" />
+                    <Plus size={32} className="text-zinc-500 group-hover:text-orange-400" />
                   </motion.div>
                 </div>
                 <span className="text-sm font-bold tracking-widest text-zinc-400 group-hover:text-white uppercase transition-colors">點擊開始</span>
@@ -366,10 +375,15 @@ export default function App() {
             key="main"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-24"
+            className="min-h-screen bg-transparent text-zinc-100 font-sans pb-24 relative"
           >
+            {/* Liquid Glass Background Elements */}
+            <div className="glass-blob blob-1" />
+            <div className="glass-blob blob-2" />
+            <div className="glass-blob blob-3" />
+
             {/* Header */}
-            <header className="p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-zinc-900 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50">
+            <header className="p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-white/5 sticky top-0 bg-zinc-950/40 backdrop-blur-xl z-50">
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -390,7 +404,25 @@ export default function App() {
             </header>
 
             <main className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-              <AnimatePresence mode="wait">
+              <motion.div
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(_, info) => {
+                  const swipeThreshold = 50;
+                  if (info.offset.x < -swipeThreshold) {
+                    // Swipe Left -> Next Tab
+                    if (activeTab === 'dashboard') setActiveTab('record');
+                    else if (activeTab === 'record') setActiveTab('players');
+                  } else if (info.offset.x > swipeThreshold) {
+                    // Swipe Right -> Prev Tab
+                    if (activeTab === 'players') setActiveTab('record');
+                    else if (activeTab === 'record') setActiveTab('dashboard');
+                  }
+                }}
+                className="touch-pan-y"
+              >
+                <AnimatePresence mode="wait">
                 {activeTab === 'dashboard' && (
                   <motion.div 
                     key="dashboard"
@@ -404,9 +436,9 @@ export default function App() {
                         initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: 0.1 }}
-                        className="bg-zinc-900 p-6 rounded-3xl border border-zinc-800"
+                        className="glass-card p-6 rounded-3xl"
                       >
-                        <div className="flex items-center gap-2 text-green-500 mb-4">
+                        <div className="flex items-center gap-2 text-green-400 mb-4">
                           <Trophy size={24} />
                           <h2 className="text-xl font-bold">今日賭神 (Top 3)</h2>
                         </div>
@@ -436,9 +468,9 @@ export default function App() {
                         initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-zinc-900 p-6 rounded-3xl border border-zinc-800"
+                        className="glass-card p-6 rounded-3xl"
                       >
-                        <div className="flex items-center gap-2 text-red-500 mb-4">
+                        <div className="flex items-center gap-2 text-red-400 mb-4">
                           <Skull size={24} />
                           <h2 className="text-xl font-bold">提款機 (Bottom 3)</h2>
                         </div>
@@ -483,10 +515,10 @@ export default function App() {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.5 }}
-                      className="bg-zinc-900 p-6 rounded-3xl border border-zinc-800"
+                      className="glass-card p-6 rounded-3xl"
                     >
                       <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <History size={20} className="text-orange-500" /> 最近戰報
+                        <History size={20} className="text-orange-400" /> 最近戰報
                       </h2>
                       <div className="space-y-3">
                         {records.slice(0, 10).map((r, idx) => {
@@ -497,7 +529,7 @@ export default function App() {
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.6 + idx * 0.05 }}
-                              className="flex justify-between items-center p-3 bg-zinc-950 rounded-xl border border-zinc-800 group"
+                              className="flex justify-between items-center p-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/5 group"
                             >
                               <div className="flex items-center gap-3">
                                 <div className={cn(
@@ -536,7 +568,7 @@ export default function App() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-zinc-900 p-6 md:p-8 rounded-3xl border border-zinc-800 max-w-md mx-auto relative"
+                    className="glass-card p-6 md:p-8 rounded-3xl max-w-md mx-auto relative"
                   >
                     <AnimatePresence>
                       {showSuccess && (
@@ -546,7 +578,7 @@ export default function App() {
                           exit={{ opacity: 0, y: -20 }}
                           className="absolute -top-12 left-0 right-0 flex justify-center"
                         >
-                          <div className="bg-green-500 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">
+                          <div className="glass-card text-green-400 px-6 py-2 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">
                             <Check size={16} /> 入帳成功！
                           </div>
                         </motion.div>
@@ -561,7 +593,7 @@ export default function App() {
                           type="date" 
                           value={date}
                           onChange={(e) => setDate(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors box-border min-w-0"
+                          className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors box-border min-w-0"
                         />
                       </div>
 
@@ -570,7 +602,7 @@ export default function App() {
                         <select 
                           value={selectedPlayerId}
                           onChange={(e) => setSelectedPlayerId(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors appearance-none"
+                          className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors appearance-none"
                         >
                           <option value="">揀返個名先...</option>
                           {players.map(p => (
@@ -588,7 +620,7 @@ export default function App() {
                             placeholder="例如: 500 或 -200"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 pl-12 focus:outline-none focus:border-orange-500 transition-colors"
+                            className="w-full glass-input rounded-xl p-4 pl-12 focus:outline-none focus:border-orange-500 transition-colors"
                           />
                         </div>
                       </div>
@@ -611,9 +643,9 @@ export default function App() {
                     exit={{ opacity: 0, y: -20 }}
                     className="space-y-6"
                   >
-                    <div className="bg-zinc-900 p-6 rounded-3xl border border-zinc-800">
+                    <div className="glass-card p-6 rounded-3xl">
                       <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <UserPlus size={20} className="text-orange-500" /> 新增損友
+                        <UserPlus size={20} className="text-orange-400" /> 新增損友
                       </h2>
                       <form onSubmit={handleAddPlayer} className="flex gap-2">
                         <input 
@@ -621,11 +653,11 @@ export default function App() {
                           placeholder="入個名嚟..."
                           value={newPlayerName}
                           onChange={(e) => setNewPlayerName(e.target.value)}
-                          className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors"
+                          className="flex-1 glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors"
                         />
                         <button 
                           type="submit"
-                          className="bg-white text-black font-bold px-6 rounded-xl hover:bg-orange-600 hover:text-white transition-all active:scale-95"
+                          className="bg-white text-black font-bold px-6 rounded-xl hover:bg-orange-500 hover:text-white transition-all active:scale-95"
                         >
                           <Plus size={24} />
                         </button>
@@ -639,7 +671,7 @@ export default function App() {
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: i * 0.05 }}
-                          className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center gap-2"
+                          className="glass-card p-4 rounded-2xl flex justify-between items-center gap-2"
                         >
                           {editingPlayerId === p.id ? (
                             <div className="flex-1 flex gap-2">
@@ -647,7 +679,7 @@ export default function App() {
                                 type="text"
                                 value={editingPlayerName}
                                 onChange={(e) => setEditingPlayerName(e.target.value)}
-                                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-orange-500"
+                                className="flex-1 glass-input rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-orange-500"
                                 autoFocus
                               />
                               <button 
@@ -691,7 +723,8 @@ export default function App() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </main>
+            </motion.div>
+          </main>
 
             {/* View All Stats Modal */}
             <AnimatePresence>
@@ -707,11 +740,11 @@ export default function App() {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
-                    className="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative z-10"
+                    className="glass-card w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative z-10"
                   >
-                    <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+                    <div className="p-6 border-b border-white/10 flex justify-between items-center">
                       <h2 className="text-xl font-bold flex items-center gap-2 italic">
-                        <Trophy size={20} className="text-orange-500" /> 全員戰力榜
+                        <Trophy size={20} className="text-orange-400" /> 全員戰力榜
                       </h2>
                       <button onClick={() => setShowAllStats(false)} className="text-zinc-500 hover:text-white">
                         <X size={24} />
@@ -720,14 +753,14 @@ export default function App() {
                     <div className="p-6 max-h-[70vh] overflow-y-auto">
                       <table className="w-full text-left">
                         <thead>
-                          <tr className="text-zinc-500 text-xs uppercase tracking-wider border-b border-zinc-800">
+                          <tr className="text-zinc-500 text-xs uppercase tracking-wider border-b border-white/10">
                             <th className="pb-4 font-medium">排名</th>
                             <th className="pb-4 font-medium">損友</th>
                             <th className="pb-4 font-medium text-right">場數</th>
                             <th className="pb-4 font-medium text-right">總 PnL</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-zinc-800/50">
+                        <tbody className="divide-y divide-white/5">
                           {stats.map((s, i) => (
                             <tr key={s.id} className="group">
                               <td className="py-4 text-zinc-500 font-mono">{i + 1}</td>
@@ -735,7 +768,7 @@ export default function App() {
                               <td className="py-4 text-right text-zinc-400">{s.gamesPlayed}</td>
                               <td className={cn(
                                 "py-4 text-right font-mono font-bold",
-                                s.totalPnL >= 0 ? "text-green-500" : "text-red-500"
+                                s.totalPnL >= 0 ? "text-green-400" : "text-red-400"
                               )}>
                                 {s.totalPnL > 0 ? `+${s.totalPnL}` : s.totalPnL}
                               </td>
@@ -744,7 +777,7 @@ export default function App() {
                         </tbody>
                       </table>
                     </div>
-                    <div className="p-6 bg-zinc-950/50 text-center">
+                    <div className="p-6 bg-white/5 text-center">
                       <p className="text-xs text-zinc-500 italic">"贏就一齊贏，輸就你一個輸。"</p>
                     </div>
                   </motion.div>
@@ -753,12 +786,12 @@ export default function App() {
             </AnimatePresence>
 
             {/* Bottom Nav */}
-            <nav className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-full p-1.5 flex gap-1 shadow-2xl z-50">
+            <nav className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md glass-card rounded-full p-1.5 flex gap-1 shadow-2xl z-50">
               <button 
                 onClick={() => setActiveTab('dashboard')}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
-                  activeTab === 'dashboard' ? "bg-orange-500 text-white" : "text-zinc-500 hover:text-white"
+                  activeTab === 'dashboard' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
                 )}
               >
                 <LayoutDashboard size={20} className="shrink-0" />
@@ -768,7 +801,7 @@ export default function App() {
                 onClick={() => setActiveTab('record')}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
-                  activeTab === 'record' ? "bg-orange-500 text-white" : "text-zinc-500 hover:text-white"
+                  activeTab === 'record' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
                 )}
               >
                 <Plus size={20} className="shrink-0" />
@@ -778,7 +811,7 @@ export default function App() {
                 onClick={() => setActiveTab('players')}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-full transition-all",
-                  activeTab === 'players' ? "bg-orange-500 text-white" : "text-zinc-500 hover:text-white"
+                  activeTab === 'players' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "text-zinc-500 hover:text-white"
                 )}
               >
                 <Users size={20} className="shrink-0" />
