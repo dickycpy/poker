@@ -45,17 +45,17 @@ service cloud.firestore {
     // ===============================================================
 
     match /players/{playerId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isValidPlayer(request.resource.data);
-      allow update: if isAuthenticated() && isValidPlayer(request.resource.data);
-      allow delete: if isAuthenticated(); // For now, let friends manage it
+      allow read: if true;
+      allow create: if isValidPlayer(request.resource.data);
+      allow update: if isValidPlayer(request.resource.data);
+      allow delete: if true; // For now, let friends manage it
     }
 
     match /records/{recordId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isValidRecord(request.resource.data);
-      allow update: if isAuthenticated() && isValidRecord(request.resource.data);
-      allow delete: if isAuthenticated();
+      allow read: if true;
+      allow create: if isValidRecord(request.resource.data);
+      allow update: if isValidRecord(request.resource.data);
+      allow delete: if true;
     }
   }
 }
