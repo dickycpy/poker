@@ -10,7 +10,34 @@
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
     font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    /* Viewport adjustment for mobile Safari */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
   }
+
+  html {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Custom Date Picker Styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none;
+  -webkit-appearance: none;
 }
 
 /* Liquid Glass Background Blobs */
