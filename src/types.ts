@@ -19,7 +19,7 @@ export const NICKNAMES: Record<NicknameType, string[]> = {
   WINNER: ['執雞', '執到錢', '小贏當大贏'],
   NEUTRAL: ['陪跑', '唔輸當贏', '路人甲'],
   LOSER: ['送財童子', '提款機', '慈善家'],
-  ATM: ['冥燈', '輸到仆街', '大慈善家', '輸到褲都甩'],
+  ATM: ['慈善大王', '輸到仆街', '大慈善家', '輸到褲都甩'],
 };
 
 export function getNickname(rank: number, totalPlayers: number, amount: number): string {
