@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "Player": {
+      "title": "Player",
+      "description": "A poker player",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The player's name"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "Timestamp when the player was added"
+        }
+      },
+      "required": ["name", "createdAt"]
+    },
+    "GameRecord": {
+      "title": "GameRecord",
+      "description": "A poker game record for a player",
+      "type": "object",
+      "properties": {
+        "playerId": {
+          "type": "string",
+          "description": "The ID of the player"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "The date of the game (YYYY-MM-DD)"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Profit or Loss amount"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "Timestamp when the record was added"
+        }
+      },
+      "required": ["playerId", "date", "amount", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/players/{playerId}": {
+      "schema": "Player",
+      "description": "Collection of poker players"
+    },
+    "/records/{recordId}": {
+      "schema": "GameRecord",
+      "description": "Collection of game records"
+    }
+  }
+}
