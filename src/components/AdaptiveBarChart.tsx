@@ -30,64 +30,28 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
 
   // 1. Adaptive Data Rendering Logic
   const processedData = useMemo(() => {
-    if (data.length <= 15) return data;
+    // Sort by PnL descending for a "Leaderboard" feel
+    const sorted = [...data].sort((a, b) => b.PnL - a.PnL);
+    if (sorted.length <= 10) return sorted;
 
-    // Sort by absolute value to find "most significant" players, 
-    // but keep original PnL for display
-    const sorted = [...data].sort((a, b) => Math.abs(b.PnL) - Math.abs(a.PnL));
-    const top6 = sorted.slice(0, 6);
-    const others = sorted.slice(6);
-    const othersPnL = others.reduce((sum, item) => sum + item.PnL, 0);
-
-    return [
-      ...top6,
-      { name: '其他 (Others)', PnL: othersPnL, isOthers: true }
-    ];
+    const top5 = sorted.slice(0, 5);
+    const bottom5 = sorted.slice(-5);
+    
+    // If there are many players, we show top 5 and bottom 5 to highlight extremes
+    return [...top5, ...bottom5];
   }, [data]);
 
-  // 2. Chart Behavior Logic (Vertical vs Horizontal)
-  const isHorizontalLayout = useMemo(() => {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const labelThreshold = 10;
-    return isMobile || processedData.some(d => d.name.length > labelThreshold);
+  const maxAbsPnL = useMemo(() => {
+    return Math.max(...processedData.map(d => Math.abs(d.PnL)), 1);
   }, [processedData]);
 
-  // 3. Scrolling Experience Logic
-  const chartWidth = useMemo(() => {
-    if (processedData.length <= 6 || isHorizontalLayout) return '100%';
-    // Minimum bar width 60px + padding
-    return `${processedData.length * 70}px`;
-  }, [processedData.length, isHorizontalLayout]);
-
-  const chartHeight = useMemo(() => {
-    if (!isHorizontalLayout) return '100%';
-    // For horizontal layout, each bar needs at least 60px height to be readable
-    return `${Math.max(300, processedData.length * 60)}px`;
-  }, [processedData.length, isHorizontalLayout]);
-
-  const renderTooltip = (props: any) => {
-    const { active, payload } = props;
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="glass-card p-3 rounded-xl shadow-2xl">
-          <p className="font-bold text-zinc-100">{data.name}</p>
-          <p className={cn("font-mono font-bold", data.PnL >= 0 ? "text-green-400" : "text-red-400")}>
-            {data.PnL > 0 ? `+${data.PnL}` : data.PnL}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
-    <div className="glass-card p-6 rounded-3xl flex flex-col h-full overflow-hidden">
+    <div className="glass-card p-6 rounded-3xl flex flex-col h-full">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <TrendingUp size={20} className="text-orange-400" /> 戰力分佈圖
         </h2>
-        {data.length > 15 && (
+        {data.length > 10 && (
           <button 
             onClick={onViewAll}
             className="text-xs font-bold text-orange-400 flex items-center gap-1 hover:bg-orange-400/10 px-3 py-1.5 rounded-full transition-colors"
@@ -97,158 +61,91 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
         )}
       </div>
 
-      <div className="flex-1 relative overflow-hidden">
-        {/* Scroll Hint */}
-        {processedData.length > 6 && !isHorizontalLayout && (
-          <div className="absolute top-0 right-0 bottom-0 w-12 bg-gradient-to-l from-zinc-900 to-transparent pointer-events-none z-10 flex items-center justify-end pr-2">
+      <div className="flex-1 space-y-4 overflow-y-auto pr-2 scrollbar-hide">
+        {processedData.map((item, index) => {
+          const percentage = (Math.abs(item.PnL) / maxAbsPnL) * 100;
+          const isPositive = item.PnL >= 0;
+
+          return (
             <motion.div 
-              animate={{ x: [0, 5, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="text-zinc-500"
+              key={item.name + index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="group"
+              onClick={() => setShowTooltip({ name: item.name, value: item.PnL })}
             >
-              <ChevronRight size={20} />
-            </motion.div>
-          </div>
-        )}
-
-        <div className={cn(
-          "h-full",
-          !isHorizontalLayout ? "overflow-x-auto scrollbar-hide" : "overflow-y-auto"
-        )}>
-          <div style={{ width: chartWidth, height: chartHeight }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart 
-                data={processedData} 
-                layout={isHorizontalLayout ? 'vertical' : 'horizontal'}
-                margin={{ top: 10, right: 30, left: isHorizontalLayout ? 60 : 0, bottom: 20 }}
-                onClick={(data: any) => {
-                  if (data && data.activePayload && data.activePayload.length > 0) {
-                    const p = data.activePayload[0].payload;
-                    setShowTooltip({ name: p.name, value: p.PnL });
-                  }
-                }}
-              >
-                <CartesianGrid 
-                  strokeDasharray="3 3" 
-                  stroke="#27272a" 
-                  vertical={isHorizontalLayout} 
-                  horizontal={!isHorizontalLayout} 
+              <div className="flex justify-between items-end mb-1.5">
+                <span className="text-sm font-bold text-zinc-300 group-hover:text-white transition-colors truncate max-w-[150px]">
+                  {item.name}
+                </span>
+                <span className={cn(
+                  "text-xs font-mono font-bold",
+                  isPositive ? "text-green-400" : "text-red-400"
+                )}>
+                  {item.PnL > 0 ? `+${item.PnL}` : item.PnL}
+                </span>
+              </div>
+              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden relative">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percentage}%` }}
+                  transition={{ duration: 1, ease: "easeOut", delay: index * 0.05 }}
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    isPositive ? "bg-gradient-to-r from-green-500/50 to-green-400 shadow-[0_0_10px_rgba(74,222,128,0.3)]" : "bg-gradient-to-r from-red-500/50 to-red-400 shadow-[0_0_10px_rgba(248,113,113,0.3)]"
+                  )}
                 />
-                
-                {isHorizontalLayout ? (
-                  <>
-                    <XAxis type="number" hide />
-                    <YAxis 
-                      type="category" 
-                      dataKey="name" 
-                      stroke="#71717a" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false}
-                      width={80}
-                      tick={(props) => {
-                        const { x, y, payload } = props;
-                        const label = payload.value.length > 10 ? payload.value.substring(0, 8) + '...' : payload.value;
-                        return (
-                          <text x={x} y={y} dy={4} textAnchor="end" fill="#71717a" fontSize={12} className="font-medium">
-                            {label}
-                          </text>
-                        );
-                      }}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="#71717a" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false}
-                      interval={0}
-                      tick={(props) => {
-                        const { x, y, payload } = props;
-                        const label = payload.value.length > 8 ? payload.value.substring(0, 6) + '...' : payload.value;
-                        return (
-                          <text x={x} y={y} dy={16} textAnchor="middle" fill="#71717a" fontSize={11} className="font-medium">
-                            {label}
-                          </text>
-                        );
-                      }}
-                    />
-                    <YAxis 
-                      stroke="#71717a" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false}
-                    />
-                  </>
-                )}
-
-                <Tooltip content={renderTooltip} cursor={{ fill: '#27272a', opacity: 0.4 }} />
-                
-                <Bar 
-                  dataKey="PnL" 
-                  radius={isHorizontalLayout ? [0, 4, 4, 0] : [4, 4, 0, 0]}
-                  barSize={isHorizontalLayout ? 30 : 40}
-                >
-                  {processedData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.PnL >= 0 ? '#4ade80' : '#f87171'} 
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                    />
-                  ))}
-                  {/* Label on bar for mobile accessibility */}
-                  <LabelList 
-                    dataKey="PnL" 
-                    position={isHorizontalLayout ? "right" : "top"} 
-                    fill="#71717a" 
-                    fontSize={10}
-                    formatter={(val: number) => val === 0 ? '' : val}
-                  />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* Swipe Hint Text */}
-      {processedData.length > 6 && !isHorizontalLayout && (
-        <p className="text-[10px] text-zinc-600 mt-2 text-center flex items-center justify-center gap-1">
-          <Info size={10} /> 左右滑動查看更多損友
-        </p>
-      )}
+      <p className="text-[10px] text-zinc-600 mt-4 text-center italic">
+        * 顯示今日最威同埋最水嘅損友
+      </p>
 
-      {/* Detail Modal / Bottom Sheet for Tap Interaction */}
+      {/* Detail Modal for Mobile */}
       <AnimatePresence>
         {showTooltip && (
           <motion.div 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            className="fixed inset-x-0 bottom-0 z-[100] p-4 md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           >
-            <div className="glass-card rounded-t-3xl p-6 shadow-2xl">
-              <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6" />
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-bold">{showTooltip.name}</h3>
-                <button onClick={() => setShowTooltip(null)} className="text-zinc-500"><X size={24} /></button>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTooltip(null)} />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="glass-card w-full max-w-xs rounded-3xl p-6 shadow-2xl relative z-10"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold italic">{showTooltip.name}</h3>
+                <button onClick={() => setShowTooltip(null)} className="text-zinc-500 hover:text-white">
+                  <X size={24} />
+                </button>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="space-y-4">
                 <div className={cn(
-                  "px-4 py-2 rounded-2xl font-mono text-xl font-bold",
-                  showTooltip.value >= 0 ? "bg-green-400/10 text-green-400" : "bg-red-400/10 text-red-400"
+                  "p-4 rounded-2xl text-center",
+                  showTooltip.value >= 0 ? "bg-green-400/10 border border-green-400/20" : "bg-red-400/10 border border-red-400/20"
                 )}>
-                  {showTooltip.value > 0 ? `+${showTooltip.value}` : showTooltip.value}
+                  <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">今日總計</p>
+                  <p className={cn(
+                    "text-4xl font-black font-mono",
+                    showTooltip.value >= 0 ? "text-green-400" : "text-red-400"
+                  )}>
+                    {showTooltip.value > 0 ? `+${showTooltip.value}` : showTooltip.value}
+                  </p>
                 </div>
-                <p className="text-zinc-400 text-sm italic">
-                  {showTooltip.value > 0 ? "今日你最威！" : "提款機你好。"}
+                <p className="text-zinc-400 text-sm text-center italic">
+                  {showTooltip.value > 0 ? "「贏就一齊贏，輸就你一個輸。」" : "「唔緊要，下次贏返。」"}
                 </p>
               </div>
-            </div>
-            <div className="fixed inset-0 bg-black/60 -z-10" onClick={() => setShowTooltip(null)} />
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
