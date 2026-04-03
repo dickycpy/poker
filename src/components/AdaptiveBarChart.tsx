@@ -73,7 +73,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
               className="group"
             >
               <div className="flex justify-between items-end mb-1.5">
-                <span className="text-sm font-bold text-zinc-300 group-hover:text-white transition-colors truncate max-w-[150px]">
+                <span className="text-sm font-bold text-zinc-500 group-hover:text-inherit transition-colors truncate max-w-[150px]">
                   {item.name}
                 </span>
                 <span className={cn(
@@ -83,7 +83,7 @@ export const AdaptiveBarChart: React.FC<AdaptiveBarChartProps> = ({ data, onView
                   {item.PnL > 0 ? `+${item.PnL}` : item.PnL}
                 </span>
               </div>
-              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden relative">
+              <div className="h-2 w-full bg-zinc-500/10 rounded-full overflow-hidden relative">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${percentage}%` }}
