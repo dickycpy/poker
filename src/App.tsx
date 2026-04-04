@@ -65,10 +65,114 @@ import {
   Copy,
   Sun,
   Moon,
-  Monitor
+  Monitor,
+  ChevronDown
 } from 'lucide-react';
 
 const INITIAL_PLAYER_NAMES = ['掌門', '蕃茄', 'Dicky', 'Hauyi', 'Hugo', 'Ken', 'Kiki', 'Leo Law', 'Matthew'];
+
+const APP_VERSION = 'v2.5.1';
+
+const CHIP_TYPES = [
+  { value: 1000, label: '$1000', color: '#FFD700', stripe: '#000000' },
+  { value: 500, label: '$500', color: '#800080', stripe: '#000000' },
+  { value: 100, label: '$100', color: '#000000', stripe: '#FF8C00' },
+  { value: 50, label: '$50', color: '#0000FF', stripe: '#4ADE80' },
+  { value: 20, label: '$20', color: '#006400', stripe: '#004d00' },
+  { value: 10, label: '$10', color: '#0000FF', stripe: '#FFFF00' },
+  { value: 5, label: '$5', color: '#FF0000', stripe: '#FFD700' },
+];
+
+const Chip = ({ value, size = "md" }: { value: number | string, size?: "sm" | "md" | "lg" }) => {
+  const chipInfo = CHIP_TYPES.find(c => c.value === (typeof value === 'string' ? parseInt(value.replace('$', '')) : value)) || CHIP_TYPES[CHIP_TYPES.length - 1];
+  
+  const sizeClasses = {
+    sm: "w-8 h-8",
+    md: "w-10 h-10",
+    lg: "w-12 h-12"
+  };
+
+  const innerSizeClasses = {
+    sm: "w-5 h-5",
+    md: "w-6 h-6",
+    lg: "w-8 h-8"
+  };
+
+  const fontClasses = {
+    sm: "text-[6px]",
+    md: "text-[8px]",
+    lg: "text-[10px]"
+  };
+
+  return (
+    <div 
+      className={cn("rounded-full flex items-center justify-center shadow-lg relative overflow-hidden shrink-0", sizeClasses[size])}
+      style={{ backgroundColor: chipInfo.color }}
+    >
+      <div className="absolute inset-0 opacity-40" style={{ 
+        backgroundImage: `repeating-conic-gradient(${chipInfo.stripe} 0 15deg, transparent 0 30deg)` 
+      }} />
+      <div className={cn("rounded-full bg-white flex items-center justify-center relative z-10 shadow-inner", innerSizeClasses[size])}>
+        <span className={cn("font-black text-black", fontClasses[size])}>{chipInfo.label}</span>
+      </div>
+    </div>
+  );
+};
+
+const CustomSelect = ({ value, onChange, options, placeholder, icon: Icon }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((o: any) => o.value === value);
+
+  return (
+    <div className="relative w-full">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full glass-input rounded-xl p-4 flex items-center justify-between text-base text-primary focus:outline-none focus:border-orange-500 transition-all text-left"
+      >
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          {Icon && <Icon size={18} className="text-muted shrink-0" />}
+          <span className={cn("truncate", !selectedOption && "text-muted")}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        </div>
+        <ChevronDown size={18} className={cn("text-muted transition-transform shrink-0 ml-2", isOpen && "rotate-180")} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className="absolute top-full left-0 right-0 mt-2 z-50 glass-card border border-white/10 shadow-2xl rounded-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar"
+            >
+              {options.map((option: any) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    "w-full p-4 text-left text-sm font-medium transition-colors hover:bg-orange-500/10 flex items-center justify-between group",
+                    value === option.value ? "text-orange-500 bg-orange-500/5" : "text-primary"
+                  )}
+                >
+                  <span className="truncate flex-1">{option.label}</span>
+                  {value === option.value && <Check size={16} className="shrink-0 ml-2" />}
+                </button>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
@@ -184,6 +288,24 @@ export default function App() {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [inputMode, setInputMode] = useState<'manual' | 'chips'>('manual');
+  const [chipCounts, setChipCounts] = useState<Record<number, number>>({
+    1000: 0,
+    500: 0,
+    100: 0,
+    50: 0,
+    20: 0,
+    10: 0,
+    5: 0
+  });
+
+  const totalChipValue = useMemo(() => {
+    return Object.entries(chipCounts).reduce((sum, [val, count]) => sum + (Number(val) * count), 0);
+  }, [chipCounts]);
+
+  const calculatedPnL = useMemo(() => {
+    return (totalChipValue - 3000) / 10;
+  }, [totalChipValue]);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -270,8 +392,17 @@ export default function App() {
 
   const handleAddRecord = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPlayerId || !amount || !date) return;
-    if (parseFloat(amount) === 0) {
+    
+    let finalAmount = 0;
+    if (inputMode === 'manual') {
+      if (!amount) return;
+      finalAmount = parseFloat(amount);
+    } else {
+      finalAmount = calculatedPnL;
+    }
+
+    if (!selectedPlayerId || !date) return;
+    if (finalAmount === 0 && inputMode === 'manual') {
       alert('0 蚊入嚟做乜？玩泥沙呀？');
       return;
     }
@@ -279,11 +410,22 @@ export default function App() {
     try {
       await addDoc(collection(db, 'records'), {
         playerId: selectedPlayerId,
-        amount: parseFloat(amount),
+        amount: finalAmount,
         date,
         createdAt: Date.now()
       });
       setAmount('');
+      if (inputMode === 'chips') {
+        setChipCounts({
+          1000: 0,
+          500: 0,
+          100: 0,
+          50: 0,
+          20: 0,
+          10: 0,
+          5: 0
+        });
+      }
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
       // Keep date and player for quick entry
@@ -491,6 +633,9 @@ export default function App() {
                 <p className="text-orange-400/80 font-bold text-xl mb-12 italic tracking-widest">
                   小賭怡情 大賭變李嘉誠
                 </p>
+                <div className="text-[10px] font-mono text-muted/40 absolute -bottom-8">
+                  {APP_VERSION}
+                </div>
               </motion.div>
 
               <motion.div
@@ -588,20 +733,20 @@ export default function App() {
                           </p>
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 font-mono text-sm">
                             {[
-                              { label: '1 × $1000', value: '$1000', color: '#f97316' },
-                              { label: '1 × $500', value: '$500', color: '#fb923c' },
-                              { label: '10 × $100', value: '$1000', color: '#fdba74' },
-                              { label: '4 × $50', value: '$200', color: '#fed7aa' },
-                              { label: '10 × $20', value: '$200', color: '#ffedd5' },
-                              { label: '8 × $10', value: '$80', color: '#fff7ed' },
-                              { label: '4 × $5', value: '$20', color: '#ffffff' },
+                              { label: '1 ×', value: 1000, total: '$1000' },
+                              { label: '1 ×', value: 500, total: '$500' },
+                              { label: '10 ×', value: 100, total: '$1000' },
+                              { label: '4 ×', value: 50, total: '$200' },
+                              { label: '10 ×', value: 20, total: '$200' },
+                              { label: '8 ×', value: 10, total: '$80' },
+                              { label: '4 ×', value: 5, total: '$20' },
                             ].map((item, i) => (
                               <div key={i} className="flex justify-between items-center p-3 bg-zinc-500/5 rounded-xl border border-zinc-500/10 hover:bg-zinc-500/10 transition-colors group">
                                 <div className="flex items-center gap-3">
-                                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
-                                  <span className="text-primary group-hover:translate-x-1 transition-transform">{item.label}</span>
+                                  <Chip value={item.value} size="sm" />
+                                  <span className="text-primary group-hover:translate-x-1 transition-transform font-bold">{item.label}</span>
                                 </div>
-                                <span className="text-orange-500 font-bold">{item.value}</span>
+                                <span className="text-orange-500 font-bold">{item.total}</span>
                               </div>
                             ))}
                           </div>
@@ -685,7 +830,6 @@ export default function App() {
                             <CalendarCheck className="text-orange-500" size={24} />
                             <h2 className="text-xl font-bold text-primary">勤力獎 (出席率) 📅</h2>
                           </div>
-                          <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Total: {players.length}</span>
                         </div>
                         <div className="max-h-[300px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
                           {[...stats].sort((a, b) => b.gamesPlayed - a.gamesPlayed).map((s, i) => (
@@ -839,21 +983,16 @@ export default function App() {
                         </div>
                         
                         {/* Player Filter Dropdown */}
-                        <div className="relative">
-                          <select 
-                            value={filterPlayerId}
-                            onChange={(e) => setFilterPlayerId(e.target.value)}
-                            className="w-full bg-zinc-500/10 border border-zinc-500/10 rounded-xl px-4 py-2 text-base font-bold text-primary focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
-                          >
-                            <option value="all">所有損友 (All Players)</option>
-                            {players.map(p => (
-                              <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                          </select>
-                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
-                            <Users size={14} />
-                          </div>
-                        </div>
+                        <CustomSelect 
+                          value={filterPlayerId}
+                          onChange={setFilterPlayerId}
+                          options={[
+                            { value: 'all', label: '所有損友 (All Players)' },
+                            ...players.map(p => ({ value: p.id, label: p.name }))
+                          ]}
+                          placeholder="篩選玩家..."
+                          icon={Users}
+                        />
                       </div>
                       <div className="space-y-3">
                         {sortedRecords.slice(0, 10).map((r, idx) => {
@@ -924,6 +1063,28 @@ export default function App() {
                     </AnimatePresence>
 
                     <h2 className="text-2xl font-bold mb-8 text-center italic">入帳啦！🃏 (或者入土🪦)</h2>
+                    
+                    <div className="flex p-1 bg-zinc-500/10 rounded-2xl mb-8">
+                      <button 
+                        onClick={() => setInputMode('manual')}
+                        className={cn(
+                          "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
+                          inputMode === 'manual' ? "bg-orange-500 text-white shadow-lg" : "text-muted hover:text-primary"
+                        )}
+                      >
+                        直接入數
+                      </button>
+                      <button 
+                        onClick={() => setInputMode('chips')}
+                        className={cn(
+                          "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
+                          inputMode === 'chips' ? "bg-orange-500 text-white shadow-lg" : "text-muted hover:text-primary"
+                        )}
+                      >
+                        數籌碼
+                      </button>
+                    </div>
+
                     <form onSubmit={handleAddRecord} className="space-y-6">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-muted">日期</label>
@@ -943,30 +1104,67 @@ export default function App() {
 
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-muted">邊位水魚？</label>
-                        <select 
+                        <CustomSelect 
                           value={selectedPlayerId}
-                          onChange={(e) => setSelectedPlayerId(e.target.value)}
-                          className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors appearance-none text-base text-primary"
-                        >
-                          <option value="">揀返個名先...</option>
-                          {players.map(p => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                          ))}
-                        </select>
+                          onChange={setSelectedPlayerId}
+                          options={players.map(p => ({ value: p.id, label: p.name }))}
+                          placeholder="揀返個名先..."
+                        />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted">贏/輸幾多？ (輸就入負數啦)</label>
-                        <div className="relative">
-                          <input 
-                            type="number" 
-                            placeholder="例如: 500 或 -200"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors text-base text-primary"
-                          />
+                      {inputMode === 'manual' ? (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-muted">贏/輸幾多？ (輸就入負數啦)</label>
+                          <div className="relative">
+                            <input 
+                              type="number" 
+                              placeholder="例如: 500 或 -200"
+                              value={amount}
+                              onChange={(e) => setAmount(e.target.value)}
+                              className="w-full glass-input rounded-xl p-4 focus:outline-none focus:border-orange-500 transition-colors text-base text-primary"
+                            />
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 gap-3">
+                            {CHIP_TYPES.map((chip) => (
+                              <div key={chip.value} className="flex items-center justify-between p-3 bg-zinc-500/5 rounded-2xl border border-zinc-500/10">
+                                <div className="flex items-center gap-3">
+                                  <Chip value={chip.value} />
+                                  <div className="text-xs font-bold text-muted">× {chipCounts[chip.value]}</div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    type="button"
+                                    onClick={() => setChipCounts(prev => ({ ...prev, [chip.value]: Math.max(0, prev[chip.value] - 1) }))}
+                                    className="w-10 h-10 rounded-xl bg-zinc-500/10 flex items-center justify-center hover:bg-zinc-500/20 transition-colors text-primary"
+                                  >
+                                    -
+                                  </button>
+                                  <button 
+                                    type="button"
+                                    onClick={() => setChipCounts(prev => ({ ...prev, [chip.value]: prev[chip.value] + 1 }))}
+                                    className="w-10 h-10 rounded-xl bg-zinc-500/10 flex items-center justify-center hover:bg-zinc-500/20 transition-colors text-primary"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="p-6 bg-orange-500/10 rounded-3xl border border-orange-500/20 text-center">
+                            <div className="text-xs font-bold text-muted uppercase tracking-widest mb-1">計算結果 (Result)</div>
+                            <div className="text-3xl font-black text-primary mb-1">
+                              {calculatedPnL > 0 ? `+${calculatedPnL}` : calculatedPnL} HKD
+                            </div>
+                            <div className="text-[10px] text-muted italic">
+                              籌碼總值: ${totalChipValue} (底: $3000)
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <button 
                         type="submit"
@@ -1094,20 +1292,16 @@ export default function App() {
                           )}
                         </div>
 
-                        <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
-                            <Calendar size={18} />
-                          </div>
-                          <select 
-                            value={settleDate}
-                            onChange={(e) => setSettleDate(e.target.value)}
-                            className="w-full bg-zinc-500/10 border border-zinc-500/10 rounded-2xl pl-12 pr-4 py-3 text-base font-bold text-primary focus:outline-none focus:border-orange-500/50 appearance-none transition-all"
-                          >
-                            {availableDates.map(d => (
-                              <option key={d} value={d}>{d} {d === format(new Date(), 'yyyy-MM-dd') ? '(今日)' : ''}</option>
-                            ))}
-                          </select>
-                        </div>
+                        <CustomSelect 
+                          value={settleDate}
+                          onChange={setSettleDate}
+                          options={availableDates.map(d => ({ 
+                            value: d, 
+                            label: `${d} ${d === format(new Date(), 'yyyy-MM-dd') ? '(今日)' : ''}` 
+                          }))}
+                          placeholder="選擇日期..."
+                          icon={Calendar}
+                        />
                       </div>
 
                       {settleTotalSum !== 0 && settleStats.length > 0 && (
